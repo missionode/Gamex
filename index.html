@@ -22,7 +22,7 @@
         </div>
 
         <!-- Central Orb -->
-        <div id="orb" class="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-24 h-24 bg-gradient-radial from-orange-500 to-blue-500 rounded-full animate-pulse shadow-2xl shadow-blue-500/50"></div>
+        <div id="orb" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-radial from-orange-500 to-blue-500 rounded-full animate-pulse shadow-2xl shadow-blue-500/50 md:bottom-10 md:w-32 md:h-32"></div>
 
         <!-- Icons will be added dynamically -->
     </div>
@@ -48,16 +48,16 @@
     </div>
 
     <script>
-        // JSON Config for Icons (loaded as if from file) - Updated some URLs to more colorful versions where possible
+        // JSON Config for Icons - Updated to brighter, more visible icon URLs where possible
         const config = {
             attractPercent: 90,
             ignorePercent: 10,
             speedIncrement: 1.1,
             energyLevels: [10, 20, 50],
             icons: [
-                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/10263/10263334.png" }, // Colorful pink coins
-                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/6673/6673927.png" }, // Green trash can
-                { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/636/636600.png" },
+                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/138/138411.png" }, // Bright gold coin
+                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/542/542724.png" }, // Standard trash, will lighten via filter
+                { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/599/599508.png" }, // Bright blue diamond
                 { name: "meteor", url: "https://cdn-icons-png.flaticon.com/512/4166/4166221.png" },
                 { name: "sunglasses", url: "https://cdn-icons-png.flaticon.com/512/140/140031.png" },
                 { name: "bra", url: "https://cdn-icons-png.flaticon.com/512/141/141601.png" },
@@ -69,7 +69,7 @@
                 { name: "lingerie", url: "https://cdn-icons-png.flaticon.com/512/141/141602.png" },
                 { name: "male", url: "https://cdn-icons-png.flaticon.com/512/107/107306.png" },
                 { name: "female", url: "https://cdn-icons-png.flaticon.com/512/107/107307.png" },
-                { name: "cash", url: "https://cdn-icons-png.flaticon.com/512/10692/10692946.png" },
+                { name: "cash", url: "https://cdn-icons-png.flaticon.com/512/138/138408.png" }, // Bright cash
                 { name: "bin", url: "https://cdn-icons-png.flaticon.com/512/484/484662.png" }
             ]
         };
@@ -131,15 +131,18 @@
                 const isAttract = Math.random() * 100 < config.attractPercent;
                 const iconData = isAttract ? attractIcon : ignoreIcon;
                 const icon = document.createElement('div');
-                icon.classList.add('absolute', 'w-12', 'h-12', 'md:w-16', 'md:h-16', 'select-none', 'shadow-2xl', 'shadow-white/50', 'brightness-125', 'ring-2', 'ring-white/30');
+                icon.classList.add('absolute', 'w-12', 'h-12', 'md:w-16', 'md:h-16', 'select-none');
                 if (!isAttract) {
-                    icon.classList.add('opacity-70', 'grayscale');
+                    icon.classList.add('opacity-70');
                 } else {
                     icon.classList.add('cursor-pointer');
                 }
                 const img = document.createElement('img');
                 img.src = iconData.url;
-                img.classList.add('w-full', 'h-full', 'object-contain');
+                img.classList.add('w-full', 'h-full', 'object-contain', 'brightness-150', 'contrast-125');
+                if (!isAttract) {
+                    img.classList.add('brightness-125', 'grayscale');
+                }
                 icon.appendChild(img);
                 // Random start position off-screen
                 const side = Math.floor(Math.random() * 4);
