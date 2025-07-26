@@ -48,16 +48,16 @@
     </div>
 
     <script>
-        // JSON Config for Icons - Updated to brighter, more visible icon URLs where possible
+        // JSON Config for Icons - Using URLs that work well when filtered to white
         const config = {
             attractPercent: 90,
             ignorePercent: 10,
             speedIncrement: 1.1,
             energyLevels: [10, 20, 50],
             icons: [
-                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/138/138411.png" }, // Bright gold coin
-                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/542/542724.png" }, // Standard trash, will lighten via filter
-                { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/599/599508.png" }, // Bright blue diamond
+                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/138/138411.png" },
+                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/542/542724.png" },
+                { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/599/599508.png" },
                 { name: "meteor", url: "https://cdn-icons-png.flaticon.com/512/4166/4166221.png" },
                 { name: "sunglasses", url: "https://cdn-icons-png.flaticon.com/512/140/140031.png" },
                 { name: "bra", url: "https://cdn-icons-png.flaticon.com/512/141/141601.png" },
@@ -69,7 +69,7 @@
                 { name: "lingerie", url: "https://cdn-icons-png.flaticon.com/512/141/141602.png" },
                 { name: "male", url: "https://cdn-icons-png.flaticon.com/512/107/107306.png" },
                 { name: "female", url: "https://cdn-icons-png.flaticon.com/512/107/107307.png" },
-                { name: "cash", url: "https://cdn-icons-png.flaticon.com/512/138/138408.png" }, // Bright cash
+                { name: "cash", url: "https://cdn-icons-png.flaticon.com/512/138/138408.png" },
                 { name: "bin", url: "https://cdn-icons-png.flaticon.com/512/484/484662.png" }
             ]
         };
@@ -111,10 +111,10 @@
 
         // Init Game
         function initGame() {
-            // Display Chosen Icons
+            // Display Chosen Icons - Apply white filter to previews too
             iconsChosenElem.innerHTML = `
-                <div>Attract: <img src="${attractIcon.url}" class="w-6 h-6 inline"></div>
-                <div>Ignore: <img src="${ignoreIcon.url}" class="w-6 h-6 inline"></div>
+                <div>Attract: <img src="${attractIcon.url}" class="w-6 h-6 inline brightness-0 invert"></div>
+                <div>Ignore: <img src="${ignoreIcon.url}" class="w-6 h-6 inline brightness-0 invert"></div>
             `;
             gameRunning = true;
             spawnIcons();
@@ -139,9 +139,9 @@
                 }
                 const img = document.createElement('img');
                 img.src = iconData.url;
-                img.classList.add('w-full', 'h-full', 'object-contain', 'brightness-150', 'contrast-125');
+                img.classList.add('w-full', 'h-full', 'object-contain', 'brightness-0', 'invert');
                 if (!isAttract) {
-                    img.classList.add('brightness-125', 'grayscale');
+                    img.classList.add('opacity-50');
                 }
                 icon.appendChild(img);
                 // Random start position off-screen
