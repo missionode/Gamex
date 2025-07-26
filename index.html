@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic Attraction Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-black to-indigo-900 overflow-hidden h-screen text-white">
@@ -43,15 +43,15 @@
     </div>
 
     <script>
-        // JSON Config for Icons (loaded as if from file)
+        // JSON Config for Icons (loaded as if from file) - Updated some URLs to more colorful versions where possible
         const config = {
             attractPercent: 90,
             ignorePercent: 10,
             speedIncrement: 1.1,
             energyLevels: [10, 20, 50],
             icons: [
-                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/980/980411.png" },
-                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/542/542724.png" },
+                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/10263/10263334.png" }, // Colorful pink coins
+                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/6673/6673927.png" }, // Green trash can
                 { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/636/636600.png" },
                 { name: "meteor", url: "https://cdn-icons-png.flaticon.com/512/4166/4166221.png" },
                 { name: "sunglasses", url: "https://cdn-icons-png.flaticon.com/512/140/140031.png" },
@@ -60,7 +60,7 @@
                 { name: "jewelry", url: "https://cdn-icons-png.flaticon.com/512/5789/5789374.png" },
                 { name: "swimsuit", url: "https://cdn-icons-png.flaticon.com/512/141/141600.png" },
                 { name: "rock", url: "https://cdn-icons-png.flaticon.com/512/636/636599.png" },
-                { name: "perfume", url: "https://cdn-icons-png.flaticon.com/512/636/636598.png" }, // Adjusted ID for example
+                { name: "perfume", url: "https://cdn-icons-png.flaticon.com/512/636/636598.png" },
                 { name: "lingerie", url: "https://cdn-icons-png.flaticon.com/512/141/141602.png" },
                 { name: "male", url: "https://cdn-icons-png.flaticon.com/512/107/107306.png" },
                 { name: "female", url: "https://cdn-icons-png.flaticon.com/512/107/107307.png" },
@@ -126,10 +126,15 @@
                 const isAttract = Math.random() * 100 < config.attractPercent;
                 const iconData = isAttract ? attractIcon : ignoreIcon;
                 const icon = document.createElement('div');
-                icon.classList.add('absolute', 'w-12', 'h-12', 'md:w-16', 'md:h-16', 'cursor-pointer' , 'select-none');
+                icon.classList.add('absolute', 'w-12', 'h-12', 'md:w-16', 'md:h-16', 'select-none', 'shadow-2xl', 'shadow-white/50', 'brightness-125', 'ring-2', 'ring-white/30');
+                if (!isAttract) {
+                    icon.classList.add('opacity-70', 'grayscale');
+                } else {
+                    icon.classList.add('cursor-pointer');
+                }
                 const img = document.createElement('img');
                 img.src = iconData.url;
-                img.classList.add('w-full', 'h-full');
+                img.classList.add('w-full', 'h-full', 'object-contain');
                 icon.appendChild(img);
                 // Random start position off-screen
                 const side = Math.floor(Math.random() * 4);
