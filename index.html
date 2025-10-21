@@ -2,233 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Attraction Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
-        --color-clifford: #da373d;
-      }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Gamex - Balance Emotion. Unlock Connection.</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles/main.css">
 </head>
-<body class="bg-gradient-to-br from-black to-indigo-900 overflow-hidden h-screen text-white">
-    <div id="game-container" class="relative w-full h-full">
-        <!-- Header -->
-        <div id="header" class="fixed top-0 left-0 right-0 h-10 bg-black/50 backdrop-blur-md flex justify-between items-center px-4 z-10 transition-opacity duration-500">
-            <span id="score">Energy: 0</span>
-            <div id="icons-chosen" class="flex items-center space-x-4"></div>
-            <button id="restart" class="text-xl cursor-pointer">🔄</button>
+<body>
+    <div class="splash-screen">
+        <canvas id="auraCanvas"></canvas>
+        <div class="content">
+            <div class="logo-container">
+                <h1 class="game-title">GAMEX</h1>
+                <p class="tagline">Balance Emotion. Unlock Connection.</p>
+            </div>
+
+            <div class="start-section">
+                <button id="startBtn" class="primary-btn">
+                    <span>START</span>
+                </button>
+                <p class="info-text">Enable Bluetooth to discover nearby players</p>
+            </div>
+
+            <div id="bluetoothStatus" class="status-message hidden"></div>
         </div>
-
-        <!-- Central Orb -->
-        <div id="orb" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-radial from-orange-500 to-blue-500 rounded-full animate-pulse shadow-2xl shadow-blue-500/50 md:bottom-10 md:w-32 md:h-32"></div>
-
-        <!-- Icons will be added dynamically -->
     </div>
 
-    <!-- Setup Modal -->
-    <div id="setup" class="fixed inset-0 bg-black/80 flex flex-col items-center justify-center z-50 p-4">
-        <h2 class="text-2xl mb-4">Choose Your Pairs</h2>
-        <div class="flex space-x-4 mb-4">
-            <div>
-                <label for="attract-select" class="block">Attract:</label>
-                <select id="attract-select" class="bg-gray-800 text-white p-2 rounded">
-                    <!-- Options added dynamically -->
-                </select>
-            </div>
-            <div>
-                <label for="ignore-select" class="block">Ignore:</label>
-                <select id="ignore-select" class="bg-gray-800 text-white p-2 rounded">
-                    <!-- Options added dynamically -->
-                </select>
-            </div>
-        </div>
-        <button id="start-game" class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600">Start Game</button>
-    </div>
-
+    <script src="/js/audio.js"></script>
+    <script src="/js/animations.js"></script>
     <script>
-        // JSON Config for Icons - Using URLs that work well when filtered to white
-        const config = {
-            attractPercent: 90,
-            ignorePercent: 10,
-            speedIncrement: 1.1,
-            energyLevels: [10, 20, 50],
-            icons: [
-                { name: "coin", url: "https://cdn-icons-png.flaticon.com/512/138/138411.png" },
-                { name: "trash", url: "https://cdn-icons-png.flaticon.com/512/542/542724.png" },
-                { name: "diamond", url: "https://cdn-icons-png.flaticon.com/512/599/599508.png" },
-                { name: "meteor", url: "https://cdn-icons-png.flaticon.com/512/4166/4166221.png" },
-                { name: "sunglasses", url: "https://cdn-icons-png.flaticon.com/512/140/140031.png" },
-                { name: "bra", url: "https://cdn-icons-png.flaticon.com/512/141/141601.png" },
-                { name: "panty", url: "https://cdn-icons-png.flaticon.com/512/141/141599.png" },
-                { name: "jewelry", url: "https://cdn-icons-png.flaticon.com/512/5789/5789374.png" },
-                { name: "swimsuit", url: "https://cdn-icons-png.flaticon.com/512/141/141600.png" },
-                { name: "rock", url: "https://cdn-icons-png.flaticon.com/512/636/636599.png" },
-                { name: "perfume", url: "https://cdn-icons-png.flaticon.com/512/636/636598.png" },
-                { name: "lingerie", url: "https://cdn-icons-png.flaticon.com/512/141/141602.png" },
-                { name: "male", url: "https://cdn-icons-png.flaticon.com/512/107/107306.png" },
-                { name: "female", url: "https://cdn-icons-png.flaticon.com/512/107/107307.png" },
-                { name: "cash", url: "https://cdn-icons-png.flaticon.com/512/138/138408.png" },
-                { name: "bin", url: "https://cdn-icons-png.flaticon.com/512/484/484662.png" }
-            ]
-        };
-
-        // Game Variables
-        let attractIcon, ignoreIcon, score = 0, currentLevel = 1, speed = 1;
-        let iconsOnScreen = [];
-        let gameRunning = false;
-        const container = document.getElementById('game-container');
-        const orb = document.getElementById('orb');
-        const header = document.getElementById('header');
-        const scoreElem = document.getElementById('score');
-        const iconsChosenElem = document.getElementById('icons-chosen');
-        const setupModal = document.getElementById('setup');
-        const attractSelect = document.getElementById('attract-select');
-        const ignoreSelect = document.getElementById('ignore-select');
-
-        // Populate Select Options
-        config.icons.forEach(icon => {
-            const option = document.createElement('option');
-            option.value = icon.name;
-            option.textContent = icon.name.charAt(0).toUpperCase() + icon.name.slice(1);
-            attractSelect.appendChild(option.cloneNode(true));
-            ignoreSelect.appendChild(option);
-        });
-
-        // Start Game Button
-        document.getElementById('start-game').addEventListener('click', () => {
-            attractIcon = config.icons.find(i => i.name === attractSelect.value);
-            ignoreIcon = config.icons.find(i => i.name === ignoreSelect.value);
-            if (attractIcon && ignoreIcon && attractIcon !== ignoreIcon) {
-                setupModal.style.display = 'none';
-                initGame();
-            }
-        });
-
-        // Restart Button
-        document.getElementById('restart').addEventListener('click', () => location.reload());
-
-        // Init Game
-        function initGame() {
-            // Display Chosen Icons - Apply white filter to previews too
-            iconsChosenElem.innerHTML = `
-                <div>Attract: <img src="${attractIcon.url}" class="w-6 h-6 inline brightness-0 invert"></div>
-                <div>Ignore: <img src="${ignoreIcon.url}" class="w-6 h-6 inline brightness-0 invert"></div>
-            `;
-            gameRunning = true;
-            spawnIcons();
-            gameLoop();
-            // Hide header after 3s
-            setTimeout(() => header.classList.add('opacity-0'), 3000);
-            container.addEventListener('mousemove', () => header.classList.remove('opacity-0'));
-        }
-
-        // Spawn Icons
-        function spawnIcons() {
-            setInterval(() => {
-                if (!gameRunning) return;
-                const isAttract = Math.random() * 100 < config.attractPercent;
-                const iconData = isAttract ? attractIcon : ignoreIcon;
-                const icon = document.createElement('div');
-                icon.classList.add('absolute', 'w-12', 'h-12', 'md:w-16', 'md:h-16', 'select-none');
-                if (!isAttract) {
-                    icon.classList.add('opacity-70');
-                } else {
-                    icon.classList.add('cursor-pointer');
-                }
-                const img = document.createElement('img');
-                img.src = iconData.url;
-                img.classList.add('w-full', 'h-full', 'object-contain', 'brightness-0', 'invert');
-                if (!isAttract) {
-                    img.classList.add('opacity-50');
-                }
-                icon.appendChild(img);
-                // Random start position off-screen
-                const side = Math.floor(Math.random() * 4);
-                let x, y;
-                switch (side) {
-                    case 0: x = Math.random() * window.innerWidth; y = -50; break; // top
-                    case 1: x = window.innerWidth + 50; y = Math.random() * window.innerHeight; break; // right
-                    case 2: x = Math.random() * window.innerWidth; y = window.innerHeight + 50; break; // bottom
-                    case 3: x = -50; y = Math.random() * window.innerHeight; break; // left
-                }
-                icon.style.left = `${x}px`;
-                icon.style.top = `${y}px`;
-                container.appendChild(icon);
-
-                // Velocity towards center with random offset
-                const orbRect = orb.getBoundingClientRect();
-                const dx = (orbRect.left + orbRect.width / 2 - x) / window.innerWidth * 2 + (Math.random() - 0.5) * 0.5;
-                const dy = (orbRect.top + orbRect.height / 2 - y) / window.innerHeight * 2 + (Math.random() - 0.5) * 0.5;
-                const vel = { x: dx * speed, y: dy * speed };
-
-                iconsOnScreen.push({ elem: icon, vel, isAttract, attracted: false });
-
-                // Click Event only for attract
-                if (isAttract) {
-                    icon.addEventListener('click', () => attractItem(iconsOnScreen.find(i => i.elem === icon)));
-                }
-            }, 1000 / speed); // Spawn rate increases with speed
-        }
-
-        // Attract Item
-        function attractItem(item) {
-            if (item.attracted) return;
-            item.attracted = true;
-            // Blink animation
-            gsap.to(item.elem, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
-            // Guided trajectory to orb
-            const orbRect = orb.getBoundingClientRect();
-            gsap.to(item.elem, {
-                left: orbRect.left + orbRect.width / 2 - item.elem.offsetWidth / 2,
-                top: orbRect.top + orbRect.height / 2 - item.elem.offsetHeight / 2,
-                duration: 2 / speed,
-                ease: "power1.inOut",
-                onUpdate: () => {}, // No need for vel update since GSAP handles
-                onComplete: () => absorbItem(item)
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('Service Worker registered', reg);
+            }).catch(err => {
+                console.log('Service Worker registration failed', err);
             });
         }
 
-        // Absorb Item
-        function absorbItem(item) {
-            // Orb glow and pulse
-            gsap.to(orb, { filter: 'brightness(1.5)', boxShadow: '0 0 20px 10px rgba(255,165,0,0.8)', duration: 0.5, yoyo: true, repeat: 1 });
-            item.elem.remove();
-            iconsOnScreen = iconsOnScreen.filter(i => i !== item);
-            score++;
-            scoreElem.textContent = `Energy: ${score}`;
-            // Check energy level unlock
-            if (config.energyLevels.includes(score)) {
-                currentLevel++;
-                speed *= config.speedIncrement * 1.2; // Bulk speed up
-                gsap.to(orb, { scale: 1.1, duration: 0.3, yoyo: true, repeat: 3 }); // Pulsing effect
-            } else {
-                speed *= config.speedIncrement; // Progressive increase
+        // PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Initialize animations
+        const canvas = document.getElementById('auraCanvas');
+        const animations = new AuraAnimations(canvas);
+        animations.startAmbientAura();
+
+        // Start button handler
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('startBtn');
+            const status = document.getElementById('bluetoothStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>CHECKING...</span>';
+
+            // Check Bluetooth availability
+            if (!navigator.bluetooth) {
+                status.textContent = 'Bluetooth not supported on this browser. Please use Chrome, Edge, or Opera.';
+                status.classList.remove('hidden');
+                status.classList.add('error');
+                btn.disabled = false;
+                btn.innerHTML = '<span>START</span>';
+                return;
             }
-        }
 
-        // Game Loop for floating
-        function gameLoop() {
-            iconsOnScreen.forEach(item => {
-                if (item.attracted) return; // GSAP handles attracted
-                let x = parseFloat(item.elem.style.left) + item.vel.x;
-                let y = parseFloat(item.elem.style.top) + item.vel.y;
-                // Bounce off edges slightly
-                if (x < -50 || x > window.innerWidth + 50 || y < -50 || y > window.innerHeight + 50) {
-                    item.elem.remove();
-                    iconsOnScreen = iconsOnScreen.filter(i => i !== item);
-                    return;
-                }
-                item.elem.style.left = `${x}px`;
-                item.elem.style.top = `${y}px`;
-            });
-            requestAnimationFrame(gameLoop);
-        }
+            // Request Bluetooth permission
+            try {
+                status.textContent = 'Requesting Bluetooth access...';
+                status.classList.remove('hidden', 'error');
+                status.classList.add('info');
 
-        // Responsive resize
-        window.addEventListener('resize', () => {
-            // Adjust orb position if needed
+                // Store user as host and redirect to lobby
+                sessionStorage.setItem('isHost', 'true');
+                window.location.href = '/lobby.html';
+            } catch (error) {
+                status.textContent = 'Bluetooth access denied. Please enable Bluetooth and try again.';
+                status.classList.add('error');
+                btn.disabled = false;
+                btn.innerHTML = '<span>START</span>';
+            }
+        });
+
+        // Haptic feedback for button
+        document.getElementById('startBtn').addEventListener('touchstart', () => {
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
         });
     </script>
 </body>

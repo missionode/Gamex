@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Results - Gamex</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div class="results-screen">
+        <canvas id="auraCanvas"></canvas>
+
+        <div class="content">
+            <div class="results-header">
+                <h1 class="result-message" id="resultMessage">BINGO</h1>
+                <p class="result-subtitle" id="resultSubtitle">Perfect Resonance Achieved!</p>
+            </div>
+
+            <div class="progress-section">
+                <!-- Toggle for showing averages -->
+                <div class="toggle-averages">
+                    <input type="checkbox" id="showAverages" checked>
+                    <label for="showAverages">Show Progress Bars</label>
+                </div>
+
+                <!-- Global Averages -->
+                <div id="averagesSection" class="averages-container">
+                    <h3 class="section-title">Global Averages</h3>
+
+                    <div class="average-item">
+                        <div class="average-label">
+                            <span class="average-name">❤️ Love</span>
+                            <span class="average-value" id="globalLoveValue">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill love" id="globalLoveBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="average-item">
+                        <div class="average-label">
+                            <span class="average-name">💛 Friendship</span>
+                            <span class="average-value" id="globalFriendshipValue">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill friendship" id="globalFriendshipBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="average-item">
+                        <div class="average-label">
+                            <span class="average-name">💜 Sex</span>
+                            <span class="average-value" id="globalSexValue">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill sex" id="globalSexBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safe Play Score -->
+                <div class="safe-score-section">
+                    <h3>Safe Play Score</h3>
+                    <div class="score-meter" id="scoreMeter">85</div>
+                    <div class="score-label" id="scoreLabel">Calm Connection</div>
+                </div>
+
+                <!-- Individual Player Stats -->
+                <div class="player-stats" id="playerStats">
+                    <h3 class="section-title">Individual Player Stats</h3>
+                    <!-- Player stats will be added dynamically -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="primary-btn" id="restartBtn">
+                        <span>PLAY AGAIN</span>
+                    </button>
+                    <button class="secondary-btn" id="shareBtn">
+                        <span>SHARE RESULTS</span>
+                    </button>
+                    <button class="secondary-btn" id="backToLobbyBtn">
+                        <span>BACK TO LOBBY</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/audio.js"></script>
+    <script src="/js/animations.js"></script>
+    <script src="/js/game-logic.js"></script>
+    <script>
+        const audio = new GameAudio();
+        const canvas = document.getElementById('auraCanvas');
+        const animations = new AuraAnimations(canvas);
+        const gameLogic = new GameLogic();
+
+        // Load game state
+        let gameState = JSON.parse(sessionStorage.getItem('gameState'));
+        if (!gameState) {
+            window.location.href = '/lobby.html';
+        }
+
+        // Calculate final results
+        const result = gameLogic.checkBingo(gameState);
+        const safeScore = gameLogic.calculateSafeScore(gameState);
+
+        // Update result message
+        if (result.isBingo) {
+            document.getElementById('resultMessage').textContent = 'BINGO';
+            document.getElementById('resultSubtitle').textContent = 'Equilibrium achieved — perfect resonance!';
+            animations.playBingoAnimation();
+        } else {
+            document.getElementById('resultMessage').textContent = 'REPLAY';
+            document.getElementById('resultSubtitle').textContent = result.reason;
+            animations.setAuraType('replay');
+        }
+
+        // Display global averages
+        function displayGlobalAverages() {
+            const { love, friendship, sex } = gameState.averages.global;
+
+            document.getElementById('globalLoveValue').textContent = love.toFixed(1) + '%';
+            document.getElementById('globalFriendshipValue').textContent = friendship.toFixed(1) + '%';
+            document.getElementById('globalSexValue').textContent = sex.toFixed(1) + '%';
+
+            setTimeout(() => {
+                document.getElementById('globalLoveBar').style.width = love + '%';
+                document.getElementById('globalFriendshipBar').style.width = friendship + '%';
+                document.getElementById('globalSexBar').style.width = sex + '%';
+            }, 100);
+        }
+
+        // Display safe play score
+        function displaySafeScore() {
+            const meter = document.getElementById('scoreMeter');
+            const label = document.getElementById('scoreLabel');
+
+            meter.textContent = Math.round(safeScore.score);
+
+            meter.className = 'score-meter ' + safeScore.category;
+            label.textContent = safeScore.label;
+        }
+
+        // Display individual player stats
+        function displayPlayerStats() {
+            const container = document.getElementById('playerStats');
+            const averagesSection = document.getElementById('averagesSection');
+
+            gameState.players.forEach(player => {
+                const stats = gameState.averages.individual[player.id];
+                if (!stats) return;
+
+                const card = document.createElement('div');
+                card.className = 'player-stat-card';
+                card.innerHTML = `
+                    <div class="player-stat-header">
+                        ${player.name} ${player.isLocal ? '(You)' : ''}
+                    </div>
+                    <div class="stat-bars">
+                        <div class="stat-item">
+                            <div class="stat-label">❤️ Love</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill love" style="width: ${stats.love}%"></div>
+                            </div>
+                            <div class="stat-value">${stats.love.toFixed(1)}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">💛 Friendship</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill friendship" style="width: ${stats.friendship}%"></div>
+                            </div>
+                            <div class="stat-value">${stats.friendship.toFixed(1)}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">💜 Sex</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill sex" style="width: ${stats.sex}%"></div>
+                            </div>
+                            <div class="stat-value">${stats.sex.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Toggle averages visibility
+            const checkbox = document.getElementById('showAverages');
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    averagesSection.classList.remove('hidden');
+                    container.classList.remove('hidden');
+                } else {
+                    averagesSection.classList.add('hidden');
+                    container.classList.add('hidden');
+                }
+
+                audio.playSound('chime');
+                if (navigator.vibrate) navigator.vibrate(10);
+            });
+        }
+
+        // Button handlers
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            // Reset game state but keep players
+            const newGameState = {
+                mode: gameState.mode,
+                totalRounds: gameState.totalRounds,
+                players: gameState.players,
+                currentRound: 0,
+                currentPlayerIndex: 0,
+                choices: [],
+                averages: {
+                    global: { love: 0, friendship: 0, sex: 0 },
+                    individual: {}
+                }
+            };
+
+            gameState.players.forEach(p => {
+                newGameState.averages.individual[p.id] = { love: 0, friendship: 0, sex: 0 };
+            });
+
+            sessionStorage.setItem('gameState', JSON.stringify(newGameState));
+
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+
+            window.location.href = '/game.html';
+        });
+
+        document.getElementById('shareBtn').addEventListener('click', async () => {
+            const shareText = `I just played Gamex!\n\nResults:\n` +
+                `❤️ Love: ${gameState.averages.global.love.toFixed(1)}%\n` +
+                `💛 Friendship: ${gameState.averages.global.friendship.toFixed(1)}%\n` +
+                `💜 Sex: ${gameState.averages.global.sex.toFixed(1)}%\n` +
+                `\nSafe Play Score: ${Math.round(safeScore.score)}\n` +
+                `Result: ${result.isBingo ? 'BINGO!' : 'REPLAY'}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Gamex Results',
+                        text: shareText
+                    });
+                    audio.playSound('chime');
+                } catch (err) {
+                    console.log('Share cancelled');
+                }
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('Results copied to clipboard!');
+                    audio.playSound('chime');
+                });
+            }
+
+            if (navigator.vibrate) navigator.vibrate(10);
+        });
+
+        document.getElementById('backToLobbyBtn').addEventListener('click', () => {
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate(10);
+            window.location.href = '/lobby.html';
+        });
+
+        // Haptic feedback for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                if (navigator.vibrate && !btn.disabled) {
+                    navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Initialize
+        animations.startAmbientAura();
+        displayGlobalAverages();
+        displaySafeScore();
+        displayPlayerStats();
+    </script>
+</body>
+</html>

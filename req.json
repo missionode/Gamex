@@ -1,0 +1,158 @@
+{
+    "game": {
+      "title": "Love Loop",
+      "tagline": "Balance Emotion. Unlock Connection.",
+      "concept": "A multiplayer emotional fidget game where players secretly choose Love, Friendship, or Sex each round. Choices influence hidden averages that evolve until equilibrium (Bingo) is reached.",
+      "modes": {
+        "easy": {
+          "rounds_required": 5,
+          "description": "Short, playful — ends after 5 rounds minimum."
+        },
+        "hard": {
+          "rounds_required": 8,
+          "description": "More tension and time to build pattern awareness."
+        },
+        "hardest": {
+          "rounds_required": 10,
+          "description": "Maximum suspense — deep reading and patience required."
+        }
+      },
+      "connectivity": {
+        "type": "bluetooth",
+        "method": "Web Bluetooth API",
+        "visibility": "Players can only see nearby connections within the game lobby.",
+        "flow": {
+          "1": "Player opens the app and enables Bluetooth.",
+          "2": "The app scans for other devices running Love Loop.",
+          "3": "When both players confirm connection, the lobby transitions into Round 1."
+        }
+      },
+      "gameplay": {
+        "round_structure": "Both players choose one of three emotions each round: Love ❤️, Friendship 💛, or Sex 💜.",
+        "round_feedback": "Players only see subtle aura animations — no direct reveal of the other’s choice.",
+        "result_logic": {
+          "conditions": {
+            "bingo": "Triggered only if average(Friendship + Sex) > average(Love) after minimum rounds are completed.",
+            "replay": "Occurs if Love average dominates or if minimum rounds not reached."
+          },
+          "safe_play_score": {
+            "formula": "SafeScore = 100 - (LoveAvg * 100 / TotalRounds)",
+            "color_scheme": {
+              "safe": "#00C853",
+              "caution": "#FFD600",
+              "unsafe": "#D50000"
+            },
+            "label_rules": {
+              "safe": "Calm connection",
+              "caution": "Emotional flux",
+              "unsafe": "Overheated"
+            }
+          }
+        },
+        "round_animations": {
+          "love": "Soft red glow expanding outward with slow heartbeat pulse.",
+          "friendship": "Warm yellow aura radiating evenly in circular waves.",
+          "sex": "Vibrant magenta pulse with spark-like flickers.",
+          "replay": "Screen ripple transition and low chime.",
+          "bingo": "Converging aura colors merging into white flash — brief vibrational feedback."
+        }
+      },
+      "ui": {
+        "theme": "Minimal aura aesthetic — clean neon lines on dark matte background.",
+        "screens": {
+          "splash": {
+            "elements": ["Game title logo", "Start button", "Bluetooth permission prompt"]
+          },
+          "lobby": {
+            "elements": ["Connected players list", "Mode selection (Easy/Hard/Hardest)", "Begin button"]
+          },
+          "round_screen": {
+            "elements": ["Three large emotion icons", "Subtle animated background showing player’s aura", "Round counter", "Tactile sound on choice tap"]
+          },
+          "results_screen": {
+            "elements": [
+              "Progress bars for Love, Friendship, Sex averages",
+              "Safe Play Score meter (color-coded)",
+              "Final message: Bingo or Replay",
+              "Option to Restart or Share Result"
+            ]
+          }
+        },
+        "microcontent": {
+          "tooltips": {
+            "love": "Desire for connection and care.",
+            "friendship": "Trust and stability.",
+            "sex": "Attraction and instinct."
+          },
+          "system_texts": {
+            "connecting": "Searching for nearby auras...",
+            "paired": "Connection established!",
+            "waiting": "Awaiting player’s choice...",
+            "replay": "The balance hasn’t settled yet. Keep looping.",
+            "bingo": "Equilibrium achieved — perfect resonance!"
+          }
+        }
+      },
+      "feedback": {
+        "haptic": {
+          "tap": "Light pulse feedback",
+          "bingo": "Quick double vibration",
+          "replay": "Gentle long vibration"
+        },
+        "audio": {
+          "love": "Soft hum in low tone",
+          "friendship": "Warm chime",
+          "sex": "Deep rhythmic beat",
+          "bingo": "Ascending melodic tone",
+          "replay": "Low reverb fade"
+        },
+        "visual_effects": {
+          "transition": "Fade-through black with glowing particle trail",
+          "bingo_reveal": "White-out flash then fade into mixed gradient of red, yellow, and purple."
+        }
+      },
+      "logic": {
+        "turn_system": "Alternate between players each round. No player can see the other's choice.",
+        "data_tracking": {
+          "per_player": ["Round number", "Choice made", "Running averages for Love, Friendship, Sex"],
+          "shared": ["Current round count", "Combined averages", "Safe Play Score"]
+        },
+        "round_completion": "When both players have chosen, app records results and updates progress.",
+        "end_condition": "Check mode’s minimum round limit; if met, evaluate averages and decide Bingo or Replay."
+      },
+      "style_guide": {
+        "fonts": {
+          "primary": "Montserrat SemiBold",
+          "secondary": "Roboto Light"
+        },
+        "color_palette": {
+          "background": "#0A0A0A",
+          "accent_love": "#FF1744",
+          "accent_friendship": "#FFD740",
+          "accent_sex": "#D500F9",
+          "neutral_text": "#E0E0E0"
+        },
+        "buttons": {
+          "shape": "Circular, glassy with subtle reflection",
+          "hover_effect": "Aura glow expands slightly"
+        }
+      },
+      "replay_loop": {
+        "mechanic": "Each Replay subtly alters background hue toward red, representing emotional heat rising.",
+        "narrative_feedback": [
+          "‘You’re close, but the aura isn’t balanced yet.’",
+          "‘Love burns too bright; cool down to connect.’",
+          "‘Friendship must rise before passion aligns.’"
+        ]
+      },
+      "bingo_sequence": {
+        "animation": [
+          "All three aura colors swirl toward the center.",
+          "Merged white flash with soft reverb sound.",
+          "Screen shows: ‘BINGO — Perfect Resonance Achieved.’"
+        ],
+        "call_to_action": "Invite rematch or share your aura balance."
+      }
+    }
+  }
+  

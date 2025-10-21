@@ -1,0 +1,712 @@
+/* Gamex - Minimal Aura Aesthetic */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@300;400&display=swap');
+
+:root {
+    --bg-dark: #0A0A0A;
+    --accent-love: #FF1744;
+    --accent-friendship: #FFD740;
+    --accent-sex: #D500F9;
+    --neutral-text: #E0E0E0;
+    --safe-color: #00C853;
+    --caution-color: #FFD600;
+    --unsafe-color: #D50000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-dark);
+    color: var(--neutral-text);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* Canvas Background */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* Splash Screen */
+.splash-screen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.logo-container {
+    margin-bottom: 4rem;
+}
+
+.game-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 4rem;
+    font-weight: 600;
+    letter-spacing: 0.5rem;
+    background: linear-gradient(135deg, var(--accent-love), var(--accent-friendship), var(--accent-sex));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleGlow 3s ease-in-out infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 23, 68, 0.5)); }
+    50% { filter: drop-shadow(0 0 40px rgba(213, 0, 249, 0.7)); }
+}
+
+.tagline {
+    font-size: 0.9rem;
+    letter-spacing: 0.2rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.start-section {
+    margin-top: 2rem;
+}
+
+/* Buttons */
+.primary-btn {
+    background: linear-gradient(135deg, rgba(255, 23, 68, 0.2), rgba(213, 0, 249, 0.2));
+    border: 2px solid var(--accent-love);
+    border-radius: 50px;
+    padding: 1.2rem 3rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    color: var(--neutral-text);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
+}
+
+.primary-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.6);
+    border-color: var(--accent-sex);
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.primary-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.primary-btn:hover::before {
+    opacity: 1;
+    animation: auraExpand 1.5s ease-out infinite;
+}
+
+@keyframes auraExpand {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+.info-text {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+/* Status Messages */
+.status-message {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.status-message.hidden {
+    display: none;
+}
+
+.status-message.info {
+    background: rgba(255, 215, 64, 0.1);
+    border: 1px solid var(--accent-friendship);
+    color: var(--accent-friendship);
+}
+
+.status-message.error {
+    background: rgba(213, 0, 0, 0.1);
+    border: 1px solid var(--unsafe-color);
+    color: var(--unsafe-color);
+}
+
+.status-message.success {
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid var(--safe-color);
+    color: var(--safe-color);
+}
+
+/* Lobby Screen */
+.lobby-screen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.lobby-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.lobby-header h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.connection-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    background: rgba(255, 215, 64, 0.1);
+    border: 1px solid var(--accent-friendship);
+}
+
+/* Players List */
+.players-section {
+    flex: 1;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.player-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.player-card.host {
+    border-color: var(--accent-friendship);
+    box-shadow: 0 0 20px rgba(255, 215, 64, 0.2);
+}
+
+.player-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--accent-love), var(--accent-sex));
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.player-role {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+/* Mode Selection */
+.mode-section {
+    margin-bottom: 2rem;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    color: var(--neutral-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Roboto', sans-serif;
+    min-width: 100px;
+}
+
+.mode-btn:hover {
+    border-color: var(--accent-friendship);
+    box-shadow: 0 0 20px rgba(255, 215, 64, 0.3);
+}
+
+.mode-btn.selected {
+    background: linear-gradient(135deg, rgba(255, 23, 68, 0.2), rgba(213, 0, 249, 0.2));
+    border-color: var(--accent-love);
+    box-shadow: 0 0 30px rgba(255, 23, 68, 0.4);
+}
+
+.mode-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.mode-rounds {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 1rem 2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: var(--neutral-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    border-color: var(--accent-friendship);
+    box-shadow: 0 0 20px rgba(255, 215, 64, 0.3);
+}
+
+/* Game Screen */
+.game-screen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.round-counter {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.current-player {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.emotion-choices {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.emotion-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 3px solid;
+    border-radius: 25px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.emotion-btn.love {
+    border-color: var(--accent-love);
+}
+
+.emotion-btn.friendship {
+    border-color: var(--accent-friendship);
+}
+
+.emotion-btn.sex {
+    border-color: var(--accent-sex);
+}
+
+.emotion-btn:hover {
+    transform: scale(1.05);
+}
+
+.emotion-btn:active {
+    transform: scale(0.98);
+}
+
+.emotion-btn.love:hover {
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.6);
+    background: rgba(255, 23, 68, 0.1);
+}
+
+.emotion-btn.friendship:hover {
+    box-shadow: 0 0 40px rgba(255, 215, 64, 0.6);
+    background: rgba(255, 215, 64, 0.1);
+}
+
+.emotion-btn.sex:hover {
+    box-shadow: 0 0 40px rgba(213, 0, 249, 0.6);
+    background: rgba(213, 0, 249, 0.1);
+}
+
+.emotion-icon {
+    font-size: 3rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.emotion-info h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.emotion-info p {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.waiting-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.waiting-state h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent-friendship);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Results Screen */
+.results-screen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.result-message {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--accent-love), var(--accent-friendship), var(--accent-sex));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.result-subtitle {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Progress Section */
+.progress-section {
+    flex: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.toggle-averages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.toggle-averages input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.toggle-averages label {
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.averages-container {
+    margin-bottom: 2rem;
+}
+
+.average-item {
+    margin-bottom: 1.5rem;
+}
+
+.average-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.average-name {
+    font-weight: 500;
+}
+
+.average-value {
+    opacity: 0.8;
+}
+
+.progress-bar {
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 15px;
+    transition: width 1s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-fill.love {
+    background: linear-gradient(90deg, var(--accent-love), #ff4569);
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.5);
+}
+
+.progress-fill.friendship {
+    background: linear-gradient(90deg, var(--accent-friendship), #ffe066);
+    box-shadow: 0 0 20px rgba(255, 215, 64, 0.5);
+}
+
+.progress-fill.sex {
+    background: linear-gradient(90deg, var(--accent-sex), #e533ff);
+    box-shadow: 0 0 20px rgba(213, 0, 249, 0.5);
+}
+
+/* Safe Play Score */
+.safe-score-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.safe-score-section h3 {
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.score-meter {
+    font-size: 3rem;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 0.5rem;
+}
+
+.score-label {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+}
+
+.score-meter.safe { color: var(--safe-color); }
+.score-meter.caution { color: var(--caution-color); }
+.score-meter.unsafe { color: var(--unsafe-color); }
+
+/* Player Stats */
+.player-stats {
+    margin-bottom: 2rem;
+}
+
+.player-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.player-stat-header {
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-label {
+    min-width: 100px;
+    font-size: 0.85rem;
+}
+
+.stat-bar {
+    flex: 1;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stat-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.stat-value {
+    min-width: 60px;
+    text-align: right;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 3rem;
+        letter-spacing: 0.3rem;
+    }
+
+    .emotion-btn {
+        padding: 1.5rem;
+    }
+
+    .emotion-icon {
+        font-size: 2.5rem;
+    }
+
+    .emotion-info h3 {
+        font-size: 1.2rem;
+    }
+}
