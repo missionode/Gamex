@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Icons - Gamex</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);
+            color: #E0E0E0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #FF1744, #FFD740, #D500F9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0.7;
+        }
+
+        .editor-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="color"],
+        select {
+            padding: 0.75rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #E0E0E0;
+            font-size: 1rem;
+        }
+
+        input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .preview-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .canvas-container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        canvas {
+            display: block;
+            border-radius: 8px;
+        }
+
+        .size-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.8), rgba(213, 0, 249, 0.8));
+            border: 2px solid #FF1744;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 23, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .download-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .instructions {
+            background: rgba(255, 215, 64, 0.1);
+            border: 1px solid rgba(255, 215, 64, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .instructions h3 {
+            color: #FFD740;
+            margin-bottom: 1rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #FFD740;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem;
+            color: #E0E0E0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn:hover {
+            border-color: #FFD740;
+            background: rgba(255, 215, 64, 0.1);
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gamex Icon Generator</h1>
+        <p class="subtitle">Create your PWA icons instantly</p>
+
+        <div class="editor-section">
+            <h2 style="margin-bottom: 1.5rem;">Design Presets</h2>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="applyPreset('gradient')">
+                    Rainbow Gradient
+                </button>
+                <button class="preset-btn" onclick="applyPreset('love')">
+                    Love Theme
+                </button>
+                <button class="preset-btn" onclick="applyPreset('friendship')">
+                    Friendship Theme
+                </button>
+                <button class="preset-btn" onclick="applyPreset('sex')">
+                    Passion Theme
+                </button>
+                <button class="preset-btn" onclick="applyPreset('minimal')">
+                    Minimal Dark
+                </button>
+            </div>
+
+            <h2 style="margin-bottom: 1.5rem;">Customize Icon</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="iconText">Icon Text</label>
+                    <input type="text" id="iconText" value="GX" maxlength="4" oninput="updateIcons()">
+                </div>
+
+                <div class="control-group">
+                    <label for="bgColor">Background Color</label>
+                    <input type="color" id="bgColor" value="#0A0A0A" oninput="updateIcons()">
+                </div>
+
+                <div class="control-group">
+                    <label for="textColor">Text Color</label>
+                    <input type="color" id="textColor" value="#FFFFFF" oninput="updateIcons()">
+                </div>
+
+                <div class="control-group">
+                    <label for="accentColor">Accent Color</label>
+                    <input type="color" id="accentColor" value="#FF1744" oninput="updateIcons()">
+                </div>
+
+                <div class="control-group">
+                    <label for="iconStyle">Icon Style</label>
+                    <select id="iconStyle" onchange="updateIcons()">
+                        <option value="gradient">Gradient Circle</option>
+                        <option value="solid">Solid Background</option>
+                        <option value="outlined">Outlined</option>
+                        <option value="minimal">Minimal Text</option>
+                        <option value="aura">Aura Effect</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="cornerRadius">Corner Radius (%)</label>
+                    <input type="range" id="cornerRadius" min="0" max="50" value="20"
+                           oninput="updateIcons(); document.getElementById('radiusValue').textContent = this.value + '%'">
+                    <span id="radiusValue">20%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-section">
+            <h2 style="margin-bottom: 1.5rem;">Preview</h2>
+            <div class="preview-section">
+                <div class="preview-card">
+                    <h3>192x192</h3>
+                    <div class="size-label">Standard Icon</div>
+                    <div class="canvas-container">
+                        <canvas id="canvas192" width="192" height="192"></canvas>
+                    </div>
+                    <button class="btn" onclick="downloadIcon(192)">Download 192x192</button>
+                </div>
+
+                <div class="preview-card">
+                    <h3>512x512</h3>
+                    <div class="size-label">High Resolution</div>
+                    <div class="canvas-container">
+                        <canvas id="canvas512" width="512" height="512"></canvas>
+                    </div>
+                    <button class="btn" onclick="downloadIcon(512)">Download 512x512</button>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <button class="btn" onclick="downloadAllIcons()" style="background: linear-gradient(135deg, #00C853, #00E676);">
+                    Download All Icons
+                </button>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 How to Use</h3>
+            <ol>
+                <li>Choose a preset or customize your icon using the controls above</li>
+                <li>Preview the icons in real-time</li>
+                <li>Click "Download All Icons" to get both sizes</li>
+                <li>Save the files as:
+                    <ul style="margin-top: 0.5rem;">
+                        <li><code>icon-192.png</code> in the <code>icons/</code> folder</li>
+                        <li><code>icon-512.png</code> in the <code>icons/</code> folder</li>
+                    </ul>
+                </li>
+                <li>Push your changes to GitHub and your PWA is complete!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Preset configurations
+        const presets = {
+            gradient: {
+                iconText: 'GX',
+                bgColor: '#0A0A0A',
+                textColor: '#FFFFFF',
+                accentColor: '#FF1744',
+                iconStyle: 'gradient',
+                cornerRadius: 20
+            },
+            love: {
+                iconText: '❤️',
+                bgColor: '#FF1744',
+                textColor: '#FFFFFF',
+                accentColor: '#D50000',
+                iconStyle: 'solid',
+                cornerRadius: 25
+            },
+            friendship: {
+                iconText: '💛',
+                bgColor: '#FFD740',
+                textColor: '#0A0A0A',
+                accentColor: '#FFC107',
+                iconStyle: 'solid',
+                cornerRadius: 25
+            },
+            sex: {
+                iconText: '💜',
+                bgColor: '#D500F9',
+                textColor: '#FFFFFF',
+                accentColor: '#AA00FF',
+                iconStyle: 'solid',
+                cornerRadius: 25
+            },
+            minimal: {
+                iconText: 'GX',
+                bgColor: '#0A0A0A',
+                textColor: '#E0E0E0',
+                accentColor: '#333333',
+                iconStyle: 'minimal',
+                cornerRadius: 15
+            }
+        };
+
+        // Apply preset
+        function applyPreset(presetName) {
+            const preset = presets[presetName];
+            document.getElementById('iconText').value = preset.iconText;
+            document.getElementById('bgColor').value = preset.bgColor;
+            document.getElementById('textColor').value = preset.textColor;
+            document.getElementById('accentColor').value = preset.accentColor;
+            document.getElementById('iconStyle').value = preset.iconStyle;
+            document.getElementById('cornerRadius').value = preset.cornerRadius;
+            document.getElementById('radiusValue').textContent = preset.cornerRadius + '%';
+            updateIcons();
+        }
+
+        // Draw icon on canvas
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const text = document.getElementById('iconText').value || 'GX';
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+            const accentColor = document.getElementById('accentColor').value;
+            const iconStyle = document.getElementById('iconStyle').value;
+            const cornerRadius = parseInt(document.getElementById('cornerRadius').value);
+            const radius = (size * cornerRadius) / 100;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+
+            // Draw background with rounded corners
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.clip();
+
+            // Apply style
+            switch (iconStyle) {
+                case 'gradient':
+                    const gradient = ctx.createLinearGradient(0, 0, size, size);
+                    gradient.addColorStop(0, '#FF1744');
+                    gradient.addColorStop(0.5, '#FFD740');
+                    gradient.addColorStop(1, '#D500F9');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+                    break;
+
+                case 'solid':
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, size, size);
+                    break;
+
+                case 'outlined':
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.strokeStyle = accentColor;
+                    ctx.lineWidth = size * 0.05;
+                    ctx.strokeRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+                    break;
+
+                case 'minimal':
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, size, size);
+                    break;
+
+                case 'aura':
+                    // Background
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, size, size);
+
+                    // Aura glow
+                    const auraGradient = ctx.createRadialGradient(
+                        size / 2, size / 2, 0,
+                        size / 2, size / 2, size / 2
+                    );
+                    auraGradient.addColorStop(0, accentColor + '80');
+                    auraGradient.addColorStop(0.7, accentColor + '20');
+                    auraGradient.addColorStop(1, accentColor + '00');
+                    ctx.fillStyle = auraGradient;
+                    ctx.fillRect(0, 0, size, size);
+                    break;
+            }
+
+            ctx.restore();
+
+            // Draw text
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Check if text is emoji
+            const isEmoji = /\p{Emoji}/u.test(text);
+            const fontSize = isEmoji ? size * 0.5 : size * 0.4;
+
+            ctx.font = `bold ${fontSize}px ${isEmoji ? 'Arial' : 'Montserrat, sans-serif'}`;
+            ctx.fillText(text, size / 2, size / 2);
+
+            // Add subtle shadow for depth
+            if (iconStyle !== 'minimal') {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = size * 0.02;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = size * 0.01;
+            }
+        }
+
+        // Update all icons
+        function updateIcons() {
+            const canvas192 = document.getElementById('canvas192');
+            const canvas512 = document.getElementById('canvas512');
+
+            drawIcon(canvas192, 192);
+            drawIcon(canvas512, 512);
+        }
+
+        // Download single icon
+        function downloadIcon(size) {
+            const canvas = document.getElementById('canvas' + size);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Download all icons
+        function downloadAllIcons() {
+            setTimeout(() => downloadIcon(192), 100);
+            setTimeout(() => downloadIcon(512), 300);
+
+            // Show success message
+            alert('Downloading both icons!\n\nSave them as:\n• icon-192.png\n• icon-512.png\n\nPlace them in the icons/ folder of your project.');
+        }
+
+        // Initialize with default gradient preset
+        window.addEventListener('DOMContentLoaded', () => {
+            applyPreset('gradient');
+        });
+    </script>
+</body>
+</html>
