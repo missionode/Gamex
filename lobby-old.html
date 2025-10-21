@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Lobby - Gamex</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+    <div class="lobby-screen">
+        <canvas id="auraCanvas"></canvas>
+
+        <div class="content">
+            <div class="lobby-header">
+                <h2>GAME LOBBY</h2>
+                <div class="connection-status" id="connectionStatus">
+                    <span id="statusText">Searching for nearby auras...</span>
+                </div>
+            </div>
+
+            <div class="players-section">
+                <h3 class="section-title">Connected Players (<span id="playerCount">1</span>)</h3>
+                <div class="players-list" id="playersList">
+                    <!-- Players will be added dynamically -->
+                </div>
+            </div>
+
+            <div class="mode-section">
+                <h3 class="section-title">Select Game Mode</h3>
+                <div class="mode-buttons">
+                    <button class="mode-btn" data-mode="easy" data-rounds="5">
+                        <div class="mode-name">EASY</div>
+                        <div class="mode-rounds">5 rounds</div>
+                    </button>
+                    <button class="mode-btn selected" data-mode="hard" data-rounds="8">
+                        <div class="mode-name">HARD</div>
+                        <div class="mode-rounds">8 rounds</div>
+                    </button>
+                    <button class="mode-btn" data-mode="hardest" data-rounds="10">
+                        <div class="mode-name">HARDEST</div>
+                        <div class="mode-rounds">10 rounds</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="primary-btn" id="startGameBtn" disabled>
+                    <span>START GAME</span>
+                </button>
+                <button class="secondary-btn" id="scanBtn">
+                    <span>SCAN FOR PLAYERS</span>
+                </button>
+            </div>
+
+            <div id="lobbyStatus" class="status-message hidden"></div>
+        </div>
+    </div>
+
+    <script src="./js/audio.js"></script>
+    <script src="./js/animations.js"></script>
+    <script src="./js/bluetooth.js"></script>
+    <script>
+        const audio = new GameAudio();
+        const canvas = document.getElementById('auraCanvas');
+        const animations = new AuraAnimations(canvas);
+        animations.startAmbientAura();
+
+        const bluetooth = new BluetoothManager();
+        const isHost = sessionStorage.getItem('isHost') === 'true';
+
+        let selectedMode = 'hard';
+        let selectedRounds = 8;
+        let players = [
+            {
+                id: 'local',
+                name: 'Player 1',
+                isHost: isHost,
+                isLocal: true
+            }
+        ];
+
+        // Initialize UI
+        function updatePlayersList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+
+            players.forEach(player => {
+                const card = document.createElement('div');
+                card.className = `player-card ${player.isHost ? 'host' : ''}`;
+                card.innerHTML = `
+                    <div class="player-icon">${player.isLocal ? '👤' : '🎮'}</div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name} ${player.isLocal ? '(You)' : ''}</div>
+                        <div class="player-role">${player.isHost ? 'Host' : 'Player'}</div>
+                    </div>
+                `;
+                playersList.appendChild(card);
+            });
+
+            document.getElementById('playerCount').textContent = players.length;
+
+            // Enable start button if we have at least 2 players
+            const startBtn = document.getElementById('startGameBtn');
+            startBtn.disabled = players.length < 2;
+        }
+
+        // Mode selection
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMode = this.dataset.mode;
+                selectedRounds = parseInt(this.dataset.rounds);
+
+                audio.playSound('chime');
+                if (navigator.vibrate) navigator.vibrate(10);
+            });
+        });
+
+        // Scan for players
+        document.getElementById('scanBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('scanBtn');
+            const status = document.getElementById('lobbyStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>SCANNING...</span>';
+            status.classList.remove('hidden', 'error');
+            status.classList.add('info');
+            status.textContent = 'Searching for nearby auras...';
+
+            try {
+                await bluetooth.scanForPlayers();
+
+                // Simulate player connection for testing
+                // In production, this will be handled by Bluetooth events
+                setTimeout(() => {
+                    const newPlayer = {
+                        id: 'player_' + Date.now(),
+                        name: 'Player ' + (players.length + 1),
+                        isHost: false,
+                        isLocal: false
+                    };
+                    players.push(newPlayer);
+                    updatePlayersList();
+
+                    status.classList.remove('info');
+                    status.classList.add('success');
+                    status.textContent = 'Connection established!';
+                    audio.playSound('chime');
+                    if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+
+                    document.getElementById('connectionStatus').innerHTML =
+                        '<span>✓ Connected</span>';
+                }, 1500);
+
+                btn.disabled = false;
+                btn.innerHTML = '<span>SCAN FOR PLAYERS</span>';
+            } catch (error) {
+                status.classList.remove('info');
+                status.classList.add('error');
+                status.textContent = error.message || 'Failed to scan for players';
+                btn.disabled = false;
+                btn.innerHTML = '<span>SCAN FOR PLAYERS</span>';
+            }
+        });
+
+        // Start game
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            if (players.length < 2) {
+                alert('Need at least 2 players to start!');
+                return;
+            }
+
+            // Save game state
+            const gameState = {
+                mode: selectedMode,
+                totalRounds: selectedRounds,
+                players: players.map((p, index) => ({
+                    ...p,
+                    playerNumber: index + 1
+                })),
+                currentRound: 0,
+                currentPlayerIndex: 0,
+                choices: [],
+                averages: {
+                    global: { love: 0, friendship: 0, sex: 0 },
+                    individual: {}
+                }
+            };
+
+            // Initialize individual averages for each player
+            players.forEach(p => {
+                gameState.averages.individual[p.id] = { love: 0, friendship: 0, sex: 0 };
+            });
+
+            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+
+            window.location.href = './game.html';
+        });
+
+        // Haptic feedback for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                if (navigator.vibrate && !btn.disabled) {
+                    navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Initialize
+        updatePlayersList();
+
+        // Handle Bluetooth events
+        bluetooth.on('playerConnected', (playerData) => {
+            players.push(playerData);
+            updatePlayersList();
+            audio.playSound('chime');
+        });
+
+        bluetooth.on('playerDisconnected', (playerId) => {
+            players = players.filter(p => p.id !== playerId);
+            updatePlayersList();
+        });
+    </script>
+</body>
+</html>

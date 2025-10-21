@@ -18,12 +18,12 @@
                     Round <span id="currentRound">1</span> / <span id="totalRounds">8</span>
                 </div>
                 <div class="current-player" id="currentPlayerText">
-                    Your turn
+                    Waiting...
                 </div>
             </div>
 
             <!-- Emotion Choices (shown when it's player's turn) -->
-            <div class="emotion-choices" id="emotionChoices">
+            <div class="emotion-choices hidden" id="emotionChoices">
                 <button class="emotion-btn love" data-emotion="love">
                     <div class="emotion-icon">❤️</div>
                     <div class="emotion-info">
@@ -50,17 +50,20 @@
             </div>
 
             <!-- Waiting State (shown when it's another player's turn) -->
-            <div class="waiting-state hidden" id="waitingState">
+            <div class="waiting-state" id="waitingState">
                 <h3>Awaiting player's choice...</h3>
                 <div class="spinner"></div>
-                <p id="waitingPlayerText">Player 2 is choosing...</p>
+                <p id="waitingPlayerText">Waiting for turn...</p>
             </div>
         </div>
     </div>
 
+    <!-- PeerJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="./js/audio.js"></script>
     <script src="./js/animations.js"></script>
     <script src="./js/game-logic.js"></script>
+    <script src="./js/peer-manager.js"></script>
     <script>
         const audio = new GameAudio();
         const canvas = document.getElementById('auraCanvas');
@@ -73,17 +76,47 @@
             window.location.href = './lobby.html';
         }
 
-        const localPlayer = gameState.players.find(p => p.isLocal);
-        let turnsCompleted = 0;
+        // Check if PeerJS is active
+        const isPeerActive = sessionStorage.getItem('peerManager') === 'active';
+        if (!isPeerActive) {
+            console.warn('PeerJS not active - running in offline mode');
+        }
 
-        // Update UI
+        // Initialize PeerManager
+        const peerManager = new PeerManager();
+        const localPlayer = gameState.players.find(p => p.isLocal);
+        const isModerator = localPlayer && localPlayer.isModerator;
+
+        // Reinitialize peer connection
+        async function initializePeer() {
+            if (!isPeerActive) return;
+
+            try {
+                await peerManager.initialize(localPlayer.name);
+
+                // Restore connections if moderator
+                if (isModerator) {
+                    console.log('Moderator: Waiting for peer connections...');
+                } else {
+                    // Reconnect to moderator
+                    const moderator = gameState.players.find(p => p.isModerator);
+                    if (moderator) {
+                        await peerManager.joinRoom(moderator.id);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to initialize peer:', error);
+            }
+        }
+
+        // Update UI based on current turn
         function updateUI() {
-            document.getElementById('currentRound').textContent =
-                Math.floor(turnsCompleted / gameState.players.length) + 1;
+            const currentRound = Math.floor(gameState.choices.length / gameState.players.length) + 1;
+            document.getElementById('currentRound').textContent = currentRound;
             document.getElementById('totalRounds').textContent = gameState.totalRounds;
 
             const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-            const isLocalTurn = currentPlayer.isLocal;
+            const isLocalTurn = currentPlayer && currentPlayer.isLocal;
 
             if (isLocalTurn) {
                 // Show choices
@@ -91,32 +124,32 @@
                 document.getElementById('waitingState').classList.add('hidden');
                 document.getElementById('currentPlayerText').textContent = 'Your turn';
                 animations.setAuraType('ambient');
+
+                // Enable buttons
+                document.querySelectorAll('.emotion-btn').forEach(b => b.disabled = false);
             } else {
                 // Show waiting state
                 document.getElementById('emotionChoices').classList.add('hidden');
                 document.getElementById('waitingState').classList.remove('hidden');
-                document.getElementById('currentPlayerText').textContent = `${currentPlayer.name}'s turn`;
+                document.getElementById('currentPlayerText').textContent =
+                    currentPlayer ? `${currentPlayer.name}'s turn` : 'Waiting...';
                 document.getElementById('waitingPlayerText').textContent =
-                    `${currentPlayer.name} is choosing...`;
+                    currentPlayer ? `${currentPlayer.name} is choosing...` : 'Waiting...';
                 animations.setAuraType('waiting');
-
-                // Simulate AI choice for other players (in production, this comes via Bluetooth)
-                setTimeout(() => {
-                    const aiChoices = ['love', 'friendship', 'sex'];
-                    const randomChoice = aiChoices[Math.floor(Math.random() * aiChoices.length)];
-                    handleChoice(randomChoice, currentPlayer);
-                }, 2000);
             }
         }
 
         // Handle emotion choice
-        function handleChoice(emotion, player) {
+        function handleChoice(emotion, playerId) {
+            const player = gameState.players.find(p => p.id === playerId);
+            if (!player) return;
+
             const choice = {
-                playerId: player.id,
+                playerId: playerId,
                 playerName: player.name,
                 emotion: emotion,
-                round: Math.floor(turnsCompleted / gameState.players.length) + 1,
-                turn: turnsCompleted + 1
+                round: Math.floor(gameState.choices.length / gameState.players.length) + 1,
+                turn: gameState.choices.length + 1
             };
 
             gameState.choices.push(choice);
@@ -131,19 +164,28 @@
                 navigator.vibrate(emotion === 'love' ? 20 : emotion === 'friendship' ? [10, 10, 10] : 30);
             }
 
+            // Save state
+            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+
             // Move to next turn
-            turnsCompleted++;
             gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
 
+            // Broadcast next turn (moderator only)
+            if (isModerator && isPeerActive) {
+                peerManager.sendNextTurn(
+                    gameState.currentPlayerIndex,
+                    gameState.players[gameState.currentPlayerIndex].id
+                );
+            }
+
             // Check if game should end
-            const minRoundsCompleted = Math.floor(turnsCompleted / gameState.players.length);
+            const minRoundsCompleted = Math.floor(gameState.choices.length / gameState.players.length);
 
             if (minRoundsCompleted >= gameState.totalRounds) {
-                // Game over - check for bingo
-                sessionStorage.setItem('gameState', JSON.stringify(gameState));
-
+                // Game over
                 setTimeout(() => {
                     const result = gameLogic.checkBingo(gameState);
+
                     if (result.isBingo) {
                         animations.playBingoAnimation();
                         audio.playSound('bingo');
@@ -153,13 +195,17 @@
                         if (navigator.vibrate) navigator.vibrate(200);
                     }
 
+                    // Broadcast game over (moderator only)
+                    if (isModerator && isPeerActive) {
+                        peerManager.sendGameOver(result);
+                    }
+
                     setTimeout(() => {
                         window.location.href = './results.html';
                     }, 2000);
                 }, 1000);
             } else {
                 // Continue game
-                sessionStorage.setItem('gameState', JSON.stringify(gameState));
                 setTimeout(updateUI, 1500);
             }
         }
@@ -170,12 +216,17 @@
                 const emotion = this.dataset.emotion;
                 const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
-                if (!currentPlayer.isLocal) return;
+                if (!currentPlayer || !currentPlayer.isLocal) return;
 
                 // Disable all buttons
                 document.querySelectorAll('.emotion-btn').forEach(b => b.disabled = true);
 
-                handleChoice(emotion, currentPlayer);
+                // Send choice via PeerJS
+                if (isPeerActive) {
+                    peerManager.sendChoice(emotion, gameState.choices.length + 1);
+                }
+
+                handleChoice(emotion, currentPlayer.id);
             });
 
             // Haptic feedback
@@ -185,6 +236,39 @@
                 }
             });
         });
+
+        // PeerJS event handlers
+        if (isPeerActive) {
+            peerManager.on('choiceReceived', (data) => {
+                console.log('Choice received:', data);
+
+                // Only moderator processes all choices
+                if (isModerator) {
+                    handleChoice(data.emotion, data.playerId);
+                }
+            });
+
+            peerManager.on('nextTurn', (data) => {
+                console.log('Next turn:', data);
+
+                // Update current player index
+                gameState.currentPlayerIndex = data.currentPlayerIndex;
+                sessionStorage.setItem('gameState', JSON.stringify(gameState));
+                updateUI();
+            });
+
+            peerManager.on('gameOver', (result) => {
+                console.log('Game over:', result);
+
+                // Sync to results page
+                setTimeout(() => {
+                    window.location.href = './results.html';
+                }, 2000);
+            });
+
+            // Initialize peer connection
+            initializePeer();
+        }
 
         // Initialize
         animations.startAmbientAura();

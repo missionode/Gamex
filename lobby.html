@@ -7,6 +7,131 @@
     <title>Lobby - Gamex</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="stylesheet" href="./styles/main.css">
+    <style>
+        .name-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--neutral-text);
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: var(--accent-friendship);
+            box-shadow: 0 0 20px rgba(255, 215, 64, 0.3);
+        }
+
+        .room-code-display {
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.1), rgba(213, 0, 249, 0.1));
+            border: 2px solid var(--accent-love);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .room-code-display h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .room-code {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            color: var(--accent-friendship);
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            color: var(--neutral-text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 215, 64, 0.2);
+            border-color: var(--accent-friendship);
+        }
+
+        .join-room-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .join-room-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 1rem;
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--neutral-text);
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--accent-friendship);
+        }
+
+        .moderator-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-friendship), #FFC107);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0A0A0A;
+            margin-left: 0.5rem;
+        }
+
+        .mode-controls {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .mode-controls.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .instruction-text {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(255, 215, 64, 0.1);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="lobby-screen">
@@ -16,20 +141,61 @@
             <div class="lobby-header">
                 <h2>GAME LOBBY</h2>
                 <div class="connection-status" id="connectionStatus">
-                    <span id="statusText">Searching for nearby auras...</span>
+                    <span id="statusText">Initializing...</span>
                 </div>
             </div>
 
+            <!-- Player Name Input -->
+            <div style="max-width: 400px; margin: 0 auto 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Your Name</label>
+                <input type="text" id="playerNameInput" class="name-input"
+                       placeholder="Enter your name" maxlength="20" value="Player">
+            </div>
+
+            <!-- Create/Join Room -->
+            <div id="roomSelection" style="max-width: 500px; margin: 0 auto 2rem;">
+                <div class="action-buttons" style="margin-bottom: 1rem;">
+                    <button class="primary-btn" id="createRoomBtn">
+                        <span>CREATE ROOM</span>
+                    </button>
+                </div>
+
+                <div class="join-room-section">
+                    <h3>Or Join Existing Room</h3>
+                    <div class="code-input-group">
+                        <input type="text" id="roomCodeInput" class="code-input"
+                               placeholder="Enter room code">
+                        <button class="secondary-btn" id="joinRoomBtn" style="white-space: nowrap;">
+                            <span>JOIN</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Code Display (for moderator) -->
+            <div id="roomCodeSection" class="room-code-display hidden">
+                <h3>Share this code with other players:</h3>
+                <div class="room-code" id="roomCodeDisplay">----</div>
+                <button class="copy-btn" id="copyCodeBtn">📋 Copy Code</button>
+            </div>
+
+            <!-- Players List -->
             <div class="players-section">
-                <h3 class="section-title">Connected Players (<span id="playerCount">1</span>)</h3>
+                <h3 class="section-title">Connected Players (<span id="playerCount">0</span>)</h3>
                 <div class="players-list" id="playersList">
                     <!-- Players will be added dynamically -->
                 </div>
             </div>
 
-            <div class="mode-section">
-                <h3 class="section-title">Select Game Mode</h3>
-                <div class="mode-buttons">
+            <!-- Mode Selection (Moderator Only) -->
+            <div class="mode-section" id="modeSection">
+                <h3 class="section-title">
+                    Select Game Mode
+                    <span id="moderatorOnlyText" class="hidden" style="font-size: 0.8rem; opacity: 0.6;">
+                        (Moderator Only)
+                    </span>
+                </h3>
+                <div class="mode-buttons mode-controls" id="modeControls">
                     <button class="mode-btn" data-mode="easy" data-rounds="5">
                         <div class="mode-name">EASY</div>
                         <div class="mode-rounds">5 rounds</div>
@@ -43,14 +209,16 @@
                         <div class="mode-rounds">10 rounds</div>
                     </button>
                 </div>
+                <div id="modeSelectedInfo" class="instruction-text hidden">
+                    Mode selected by moderator: <strong id="selectedModeName">HARD</strong>
+                    (<span id="selectedModeRounds">8</span> rounds)
+                </div>
             </div>
 
+            <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="primary-btn" id="startGameBtn" disabled>
+                <button class="primary-btn hidden" id="startGameBtn">
                     <span>START GAME</span>
-                </button>
-                <button class="secondary-btn" id="scanBtn">
-                    <span>SCAN FOR PLAYERS</span>
                 </button>
             </div>
 
@@ -58,42 +226,192 @@
         </div>
     </div>
 
+    <!-- PeerJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="./js/audio.js"></script>
     <script src="./js/animations.js"></script>
-    <script src="./js/bluetooth.js"></script>
+    <script src="./js/peer-manager.js"></script>
     <script>
         const audio = new GameAudio();
         const canvas = document.getElementById('auraCanvas');
         const animations = new AuraAnimations(canvas);
         animations.startAmbientAura();
 
-        const bluetooth = new BluetoothManager();
-        const isHost = sessionStorage.getItem('isHost') === 'true';
-
+        const peerManager = new PeerManager();
+        let isModerator = false;
         let selectedMode = 'hard';
         let selectedRounds = 8;
-        let players = [
-            {
-                id: 'local',
-                name: 'Player 1',
-                isHost: isHost,
-                isLocal: true
-            }
-        ];
+        let players = [];
 
-        // Initialize UI
+        // Initialize
+        async function init() {
+            const playerName = document.getElementById('playerNameInput').value.trim() || 'Player';
+
+            try {
+                await peerManager.initialize(playerName);
+                updateStatus('Ready to create or join room', 'success');
+            } catch (error) {
+                updateStatus('Failed to initialize: ' + error.message, 'error');
+            }
+        }
+
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('connectionStatus');
+            status.innerHTML = `<span>${message}</span>`;
+            status.className = 'connection-status ' + type;
+        }
+
+        // Create room
+        document.getElementById('createRoomBtn').addEventListener('click', async () => {
+            const playerName = document.getElementById('playerNameInput').value.trim() || 'Player';
+
+            if (!peerManager.isInitialized) {
+                await init();
+            }
+
+            try {
+                const room = peerManager.createRoom();
+                isModerator = true;
+
+                // Show room code
+                document.getElementById('roomCodeDisplay').textContent = room.playerId;
+                document.getElementById('roomCodeSection').classList.remove('hidden');
+                document.getElementById('roomSelection').classList.add('hidden');
+
+                // Add self to players list
+                players.push({
+                    id: room.playerId,
+                    name: playerName,
+                    isModerator: true,
+                    isLocal: true
+                });
+
+                updatePlayersList();
+                setupModeratorControls();
+                updateStatus('Room created! Share the code with others.', 'success');
+                audio.playSound('chime');
+
+            } catch (error) {
+                updateStatus('Failed to create room: ' + error.message, 'error');
+            }
+        });
+
+        // Join room
+        document.getElementById('joinRoomBtn').addEventListener('click', async () => {
+            const roomCode = document.getElementById('roomCodeInput').value.trim();
+            const playerName = document.getElementById('playerNameInput').value.trim() || 'Player';
+
+            if (!roomCode) {
+                updateStatus('Please enter a room code', 'error');
+                return;
+            }
+
+            if (!peerManager.isInitialized) {
+                await init();
+            }
+
+            try {
+                updateStatus('Connecting to room...', 'info');
+
+                await peerManager.joinRoom(roomCode);
+                isModerator = false;
+
+                // Add self to players list
+                players.push({
+                    id: peerManager.localPlayerId,
+                    name: playerName,
+                    isModerator: false,
+                    isLocal: true
+                });
+
+                document.getElementById('roomSelection').classList.add('hidden');
+                updatePlayersList();
+                setupGuestControls();
+                updateStatus('Connected to room!', 'success');
+                audio.playSound('chime');
+
+            } catch (error) {
+                updateStatus('Failed to join room: ' + error.message, 'error');
+            }
+        });
+
+        // Copy room code
+        document.getElementById('copyCodeBtn').addEventListener('click', () => {
+            const code = document.getElementById('roomCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyCodeBtn');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy Code';
+                }, 2000);
+                audio.playSound('chime');
+            });
+        });
+
+        // Player name update
+        document.getElementById('playerNameInput').addEventListener('change', (e) => {
+            const newName = e.target.value.trim() || 'Player';
+            peerManager.updatePlayerName(newName);
+
+            // Update local player name
+            const localPlayer = players.find(p => p.isLocal);
+            if (localPlayer) {
+                localPlayer.name = newName;
+                updatePlayersList();
+            }
+        });
+
+        // Setup moderator controls
+        function setupModeratorControls() {
+            document.getElementById('modeControls').classList.add('active');
+            document.getElementById('moderatorOnlyText').classList.remove('hidden');
+            document.getElementById('startGameBtn').classList.remove('hidden');
+            document.getElementById('startGameBtn').disabled = players.length < 2;
+        }
+
+        // Setup guest controls
+        function setupGuestControls() {
+            document.getElementById('modeControls').classList.remove('active');
+            document.getElementById('moderatorOnlyText').classList.remove('hidden');
+            document.getElementById('modeSelectedInfo').classList.remove('hidden');
+            document.getElementById('startGameBtn').classList.add('hidden');
+        }
+
+        // Mode selection (moderator only)
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!isModerator) return;
+
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMode = this.dataset.mode;
+                selectedRounds = parseInt(this.dataset.rounds);
+
+                // Broadcast mode selection
+                peerManager.selectGameMode(selectedMode, selectedRounds);
+
+                audio.playSound('chime');
+                if (navigator.vibrate) navigator.vibrate(10);
+            });
+        });
+
+        // Update players list
         function updatePlayersList() {
             const playersList = document.getElementById('playersList');
             playersList.innerHTML = '';
 
             players.forEach(player => {
                 const card = document.createElement('div');
-                card.className = `player-card ${player.isHost ? 'host' : ''}`;
+                card.className = `player-card ${player.isModerator ? 'host' : ''}`;
                 card.innerHTML = `
                     <div class="player-icon">${player.isLocal ? '👤' : '🎮'}</div>
                     <div class="player-info">
-                        <div class="player-name">${player.name} ${player.isLocal ? '(You)' : ''}</div>
-                        <div class="player-role">${player.isHost ? 'Host' : 'Player'}</div>
+                        <div class="player-name">
+                            ${player.name} ${player.isLocal ? '(You)' : ''}
+                            ${player.isModerator ? '<span class="moderator-badge">MODERATOR</span>' : ''}
+                        </div>
+                        <div class="player-role">${player.isModerator ? 'Room Creator' : 'Player'}</div>
                     </div>
                 `;
                 playersList.appendChild(card);
@@ -101,79 +419,21 @@
 
             document.getElementById('playerCount').textContent = players.length;
 
-            // Enable start button if we have at least 2 players
-            const startBtn = document.getElementById('startGameBtn');
-            startBtn.disabled = players.length < 2;
+            // Update start button
+            if (isModerator) {
+                document.getElementById('startGameBtn').disabled = players.length < 2;
+            }
+
+            // Broadcast player list to all (if moderator)
+            if (isModerator) {
+                peerManager.sendPlayerList(players);
+            }
         }
 
-        // Mode selection
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedMode = this.dataset.mode;
-                selectedRounds = parseInt(this.dataset.rounds);
-
-                audio.playSound('chime');
-                if (navigator.vibrate) navigator.vibrate(10);
-            });
-        });
-
-        // Scan for players
-        document.getElementById('scanBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('scanBtn');
-            const status = document.getElementById('lobbyStatus');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span>SCANNING...</span>';
-            status.classList.remove('hidden', 'error');
-            status.classList.add('info');
-            status.textContent = 'Searching for nearby auras...';
-
-            try {
-                await bluetooth.scanForPlayers();
-
-                // Simulate player connection for testing
-                // In production, this will be handled by Bluetooth events
-                setTimeout(() => {
-                    const newPlayer = {
-                        id: 'player_' + Date.now(),
-                        name: 'Player ' + (players.length + 1),
-                        isHost: false,
-                        isLocal: false
-                    };
-                    players.push(newPlayer);
-                    updatePlayersList();
-
-                    status.classList.remove('info');
-                    status.classList.add('success');
-                    status.textContent = 'Connection established!';
-                    audio.playSound('chime');
-                    if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
-
-                    document.getElementById('connectionStatus').innerHTML =
-                        '<span>✓ Connected</span>';
-                }, 1500);
-
-                btn.disabled = false;
-                btn.innerHTML = '<span>SCAN FOR PLAYERS</span>';
-            } catch (error) {
-                status.classList.remove('info');
-                status.classList.add('error');
-                status.textContent = error.message || 'Failed to scan for players';
-                btn.disabled = false;
-                btn.innerHTML = '<span>SCAN FOR PLAYERS</span>';
-            }
-        });
-
-        // Start game
+        // Start game (moderator only)
         document.getElementById('startGameBtn').addEventListener('click', () => {
-            if (players.length < 2) {
-                alert('Need at least 2 players to start!');
-                return;
-            }
+            if (!isModerator || players.length < 2) return;
 
-            // Save game state
             const gameState = {
                 mode: selectedMode,
                 totalRounds: selectedRounds,
@@ -190,17 +450,93 @@
                 }
             };
 
-            // Initialize individual averages for each player
             players.forEach(p => {
                 gameState.averages.individual[p.id] = { love: 0, friendship: 0, sex: 0 };
             });
 
             sessionStorage.setItem('gameState', JSON.stringify(gameState));
+            sessionStorage.setItem('peerManager', 'active');
+
+            // Broadcast game start
+            peerManager.startGame(gameState);
 
             audio.playSound('chime');
             if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
 
-            window.location.href = './game.html';
+            setTimeout(() => {
+                window.location.href = './game.html';
+            }, 500);
+        });
+
+        // PeerJS event handlers
+        peerManager.on('playerJoined', (playerData) => {
+            players.push({
+                id: playerData.playerId,
+                name: playerData.playerName,
+                isModerator: false,
+                isLocal: false
+            });
+
+            updatePlayersList();
+            updateStatus(`${playerData.playerName} joined!`, 'success');
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+        });
+
+        peerManager.on('playerDisconnected', ({ playerId }) => {
+            const player = players.find(p => p.id === playerId);
+            players = players.filter(p => p.id !== playerId);
+            updatePlayersList();
+
+            if (player) {
+                updateStatus(`${player.name} left the room`, 'info');
+            }
+        });
+
+        peerManager.on('playerNameUpdated', ({ playerId, playerName }) => {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                player.name = playerName;
+                updatePlayersList();
+            }
+        });
+
+        peerManager.on('modeSelected', ({ mode, rounds }) => {
+            selectedMode = mode;
+            selectedRounds = rounds;
+
+            document.getElementById('selectedModeName').textContent = mode.toUpperCase();
+            document.getElementById('selectedModeRounds').textContent = rounds;
+
+            // Update visual selection
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        });
+
+        peerManager.on('gameStarted', (gameState) => {
+            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+            sessionStorage.setItem('peerManager', 'active');
+
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+
+            setTimeout(() => {
+                window.location.href = './game.html';
+            }, 500);
+        });
+
+        peerManager.on('playerListUpdated', (updatedPlayers) => {
+            players = updatedPlayers;
+            updatePlayersList();
+        });
+
+        peerManager.on('error', ({ message }) => {
+            updateStatus('Error: ' + message, 'error');
         });
 
         // Haptic feedback for buttons
@@ -212,20 +548,8 @@
             });
         });
 
-        // Initialize
-        updatePlayersList();
-
-        // Handle Bluetooth events
-        bluetooth.on('playerConnected', (playerData) => {
-            players.push(playerData);
-            updatePlayersList();
-            audio.playSound('chime');
-        });
-
-        bluetooth.on('playerDisconnected', (playerId) => {
-            players = players.filter(p => p.id !== playerId);
-            updatePlayersList();
-        });
+        // Auto-initialize on load
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
