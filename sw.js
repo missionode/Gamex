@@ -5,17 +5,17 @@
 
 const CACHE_NAME = 'gamex-v1.0.0';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/lobby.html',
-    '/game.html',
-    '/results.html',
-    '/styles/main.css',
-    '/js/audio.js',
-    '/js/animations.js',
-    '/js/bluetooth.js',
-    '/js/game-logic.js',
-    '/manifest.json'
+    './',
+    './index.html',
+    './lobby.html',
+    './game.html',
+    './results.html',
+    './styles/main.css',
+    './js/audio.js',
+    './js/animations.js',
+    './js/bluetooth.js',
+    './js/game-logic.js',
+    './manifest.json'
 ];
 
 /**
@@ -103,7 +103,7 @@ self.addEventListener('fetch', event => {
                     console.error('[Service Worker] Fetch failed:', error);
 
                     // Return offline page if available
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 });
             })
     );

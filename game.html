@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0A0A0A">
     <title>Playing - Gamex</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
     <div class="game-screen">
@@ -58,9 +58,9 @@
         </div>
     </div>
 
-    <script src="/js/audio.js"></script>
-    <script src="/js/animations.js"></script>
-    <script src="/js/game-logic.js"></script>
+    <script src="./js/audio.js"></script>
+    <script src="./js/animations.js"></script>
+    <script src="./js/game-logic.js"></script>
     <script>
         const audio = new GameAudio();
         const canvas = document.getElementById('auraCanvas');
@@ -70,7 +70,7 @@
         // Load game state
         let gameState = JSON.parse(sessionStorage.getItem('gameState'));
         if (!gameState) {
-            window.location.href = '/lobby.html';
+            window.location.href = './lobby.html';
         }
 
         const localPlayer = gameState.players.find(p => p.isLocal);
@@ -154,7 +154,7 @@
                     }
 
                     setTimeout(() => {
-                        window.location.href = '/results.html';
+                        window.location.href = './results.html';
                     }, 2000);
                 }, 1000);
             } else {

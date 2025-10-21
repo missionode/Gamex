@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0A0A0A">
     <title>Gamex - Balance Emotion. Unlock Connection.</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
     <div class="splash-screen">
@@ -28,12 +28,12 @@
         </div>
     </div>
 
-    <script src="/js/audio.js"></script>
-    <script src="/js/animations.js"></script>
+    <script src="./js/audio.js"></script>
+    <script src="./js/animations.js"></script>
     <script>
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
                 console.log('Service Worker registered', reg);
             }).catch(err => {
                 console.log('Service Worker registration failed', err);
@@ -78,7 +78,7 @@
 
                 // Store user as host and redirect to lobby
                 sessionStorage.setItem('isHost', 'true');
-                window.location.href = '/lobby.html';
+                window.location.href = './lobby.html';
             } catch (error) {
                 status.textContent = 'Bluetooth access denied. Please enable Bluetooth and try again.';
                 status.classList.add('error');
