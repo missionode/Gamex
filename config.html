@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Setup - Gamex</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/main.css">
+    <style>
+        .config-screen {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .config-container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .config-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .config-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #FF1744, #FFD740, #D500F9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .config-header p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .config-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .player-count-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .count-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: var(--neutral-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .count-btn:hover {
+            border-color: var(--accent-friendship);
+            background: rgba(255, 215, 64, 0.1);
+        }
+
+        .count-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .count-display {
+            flex: 1;
+            text-align: center;
+            font-size: 3rem;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--accent-friendship);
+        }
+
+        .range-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .range-slider input {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-friendship);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 64, 0.5);
+        }
+
+        .range-slider input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-friendship);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 64, 0.5);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+
+        .difficulty-info {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 215, 64, 0.1);
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .difficulty-info .mode-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-friendship);
+            margin-bottom: 0.5rem;
+        }
+
+        .difficulty-info .mode-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .start-game-btn {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.8), rgba(213, 0, 249, 0.8));
+            border: 2px solid var(--accent-love);
+            border-radius: 15px;
+            padding: 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(255, 23, 68, 0.4);
+        }
+
+        .start-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 40px rgba(255, 23, 68, 0.6);
+        }
+
+        .start-game-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="config-screen">
+        <canvas id="auraCanvas"></canvas>
+
+        <div class="config-container">
+            <div class="config-header">
+                <h1>GAMEX</h1>
+                <p>Configure your game and watch the magic unfold</p>
+            </div>
+
+            <!-- Number of Players -->
+            <div class="config-section">
+                <h3>Number of Players</h3>
+                <div class="player-count-selector">
+                    <button class="count-btn" id="decreaseBtn">−</button>
+                    <div class="count-display" id="playerCount">2</div>
+                    <button class="count-btn" id="increaseBtn">+</button>
+                </div>
+            </div>
+
+            <!-- Difficulty Mode -->
+            <div class="config-section">
+                <h3>Difficulty Mode</h3>
+                <div class="range-slider">
+                    <input type="range" id="difficultySlider" min="1" max="3" value="2" step="1">
+                    <div class="range-labels">
+                        <span>Easy</span>
+                        <span>Hard</span>
+                        <span>Hardest</span>
+                    </div>
+                </div>
+                <div class="difficulty-info" id="difficultyInfo">
+                    <div class="mode-name" id="modeName">HARD</div>
+                    <div class="mode-desc" id="modeDesc">8 rounds minimum — More tension and pattern awareness</div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button class="start-game-btn" id="startBtn">
+                START GAME
+            </button>
+        </div>
+    </div>
+
+    <script src="./js/audio.js"></script>
+    <script src="./js/animations.js"></script>
+    <script src="./js/players-data.js"></script>
+    <script>
+        const audio = new GameAudio();
+        const canvas = document.getElementById('auraCanvas');
+        const animations = new AuraAnimations(canvas);
+        animations.startAmbientAura();
+
+        const playersGenerator = new PlayersDataGenerator();
+
+        let playerCount = 2;
+        let difficulty = 2; // 1=Easy, 2=Hard, 3=Hardest
+
+        const difficultyModes = {
+            1: {
+                name: 'EASY',
+                mode: 'easy',
+                rounds: 5,
+                desc: '5 rounds minimum — Short and playful'
+            },
+            2: {
+                name: 'HARD',
+                mode: 'hard',
+                rounds: 8,
+                desc: '8 rounds minimum — More tension and pattern awareness'
+            },
+            3: {
+                name: 'HARDEST',
+                mode: 'hardest',
+                rounds: 10,
+                desc: '10 rounds minimum — Maximum suspense and deep reading'
+            }
+        };
+
+        // Player count controls
+        document.getElementById('decreaseBtn').addEventListener('click', () => {
+            if (playerCount > 2) {
+                playerCount--;
+                updatePlayerCount();
+                audio.playSound('chime');
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        });
+
+        document.getElementById('increaseBtn').addEventListener('click', () => {
+            if (playerCount < 10) {
+                playerCount++;
+                updatePlayerCount();
+                audio.playSound('chime');
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        });
+
+        function updatePlayerCount() {
+            document.getElementById('playerCount').textContent = playerCount;
+            document.getElementById('decreaseBtn').disabled = playerCount <= 2;
+            document.getElementById('increaseBtn').disabled = playerCount >= 10;
+        }
+
+        // Difficulty slider
+        document.getElementById('difficultySlider').addEventListener('input', (e) => {
+            difficulty = parseInt(e.target.value);
+            updateDifficultyInfo();
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate(10);
+        });
+
+        function updateDifficultyInfo() {
+            const mode = difficultyModes[difficulty];
+            document.getElementById('modeName').textContent = mode.name;
+            document.getElementById('modeDesc').textContent = mode.desc;
+        }
+
+        // Start game button
+        document.getElementById('startBtn').addEventListener('click', () => {
+            const mode = difficultyModes[difficulty];
+
+            // Create game configuration
+            const gameConfig = {
+                playerCount: playerCount,
+                difficulty: mode.mode,
+                difficultyName: mode.name,
+                minRounds: mode.rounds,
+                players: []
+            };
+
+            // Generate player list with realistic data
+            console.log('Generating players...');
+            gameConfig.players = playersGenerator.generatePlayers(playerCount);
+            console.log('Generated players:', gameConfig.players);
+
+            // Validate players
+            if (!gameConfig.players || gameConfig.players.length === 0) {
+                alert('Failed to generate players! Please try again.');
+                return;
+            }
+
+            // Save to session storage
+            sessionStorage.setItem('gameConfig', JSON.stringify(gameConfig));
+            console.log('Saved to sessionStorage:', JSON.parse(sessionStorage.getItem('gameConfig')));
+
+            audio.playSound('chime');
+            if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+
+            // Navigate to player selection
+            setTimeout(() => {
+                window.location.href = './select-player.html';
+            }, 300);
+        });
+
+        // Haptic feedback for all buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                if (navigator.vibrate && !btn.disabled) {
+                    navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Initialize
+        updatePlayerCount();
+        updateDifficultyInfo();
+    </script>
+</body>
+</html>

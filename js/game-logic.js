@@ -74,10 +74,10 @@ class GameLogic {
 
     /**
      * Check if bingo condition is met
-     * Bingo: average(Friendship + Sex) > average(Love)
+     * Bingo: For the WATCHING PLAYER, both Friendship > Love AND Sex > Love
      */
     checkBingo(gameState) {
-        const { averages, totalRounds, choices, players } = gameState;
+        const { averages, totalRounds, choices, players, watchingPlayerId } = gameState;
         const minRoundsCompleted = Math.floor(choices.length / players.length);
 
         // Check if minimum rounds are met
@@ -88,31 +88,41 @@ class GameLogic {
             };
         }
 
-        const { love, friendship, sex } = averages.global;
+        // Get the watching player's individual averages
+        if (!watchingPlayerId || !averages.individual[watchingPlayerId]) {
+            console.error('Watching player ID not found:', watchingPlayerId);
+            return {
+                isBingo: false,
+                reason: 'Watching player not found.'
+            };
+        }
 
-        // Calculate average of Friendship + Sex
-        const friendshipSexAverage = (friendship + sex) / 2;
+        const { love, friendship, sex } = averages.individual[watchingPlayerId];
 
-        // Check bingo condition
-        if (friendshipSexAverage > love) {
+        // Check bingo condition: BOTH Friendship > Love AND Sex > Love
+        const isBingo = friendship > love && sex > love;
+
+        if (isBingo) {
             return {
                 isBingo: true,
-                reason: 'Equilibrium achieved — perfect resonance!',
+                reason: 'BINGO! Perfect resonance achieved!',
                 details: {
                     love,
                     friendship,
                     sex,
-                    friendshipSexAverage
+                    watchingPlayerId
                 }
             };
         } else {
-            // Determine specific reason for replay
+            // Determine specific reason for continuing
             let reason = 'The balance hasn\'t settled yet. Keep looping.';
 
-            if (love > friendship && love > sex) {
+            if (love >= friendship && love >= sex) {
                 reason = 'Love burns too bright; cool down to connect.';
-            } else if (love > friendshipSexAverage) {
-                reason = 'Friendship must rise before passion aligns.';
+            } else if (friendship <= love) {
+                reason = 'Friendship must rise above love.';
+            } else if (sex <= love) {
+                reason = 'Passion must exceed romantic love.';
             }
 
             return {
@@ -122,7 +132,7 @@ class GameLogic {
                     love,
                     friendship,
                     sex,
-                    friendshipSexAverage
+                    watchingPlayerId
                 }
             };
         }

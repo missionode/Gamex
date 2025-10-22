@@ -7,6 +7,56 @@
     <title>Playing - Gamex</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="stylesheet" href="./styles/main.css">
+    <style>
+        /* Enhanced text readability for game screen */
+        .game-header {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .round-counter {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .current-player {
+            font-size: 1.1rem;
+            color: #FFD740;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .emotion-info h3 {
+            color: #FFFFFF;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        .emotion-info p {
+            color: #E0E0E0;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .waiting-state h3 {
+            color: #FFFFFF;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .waiting-state p {
+            color: #FFD740;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Improve button text contrast */
+        .emotion-btn {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .emotion-btn:hover {
+            background: rgba(20, 20, 20, 0.8);
+        }
+    </style>
 </head>
 <body>
     <div class="game-screen">

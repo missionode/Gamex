@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Comparison - Gamex</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+        }
+
+        .gender-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .gender-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .gender-title.male {
+            color: #64B5F6;
+        }
+
+        .gender-title.female {
+            color: #F48FB1;
+        }
+
+        .avatars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .avatar-item {
+            text-align: center;
+        }
+
+        .avatar-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            background: white;
+            margin: 0 auto 1rem;
+        }
+
+        .avatar-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-gender {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-style {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .comparison-note {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #FFD740;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .comparison-note h3 {
+            margin-top: 0;
+            color: #FFD740;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Gamex Avatar Styles</h1>
+        <p class="subtitle">Gender-Specific Avatar Generation with Indian Names</p>
+
+        <div class="comparison-note">
+            <h3>✨ Visual Distinction</h3>
+            <p><strong>Male avatars</strong> use the "Adventurer" style with masculine features, short hair, and facial hair options.</p>
+            <p><strong>Female avatars</strong> use the "Lorelei" style with feminine features and flowing hair.</p>
+        </div>
+
+        <!-- Male Section -->
+        <div class="gender-section">
+            <div class="gender-title male">♂️ Male Players - Adventurer Style</div>
+            <div class="avatars-grid">
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=arjun&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Arjun">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Arjun</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=rohan&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Rohan">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Rohan</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=aarav&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Aarav">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Aarav</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=vivaan&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Vivaan">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Vivaan</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=aditya&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Aditya">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Aditya</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/adventurer/svg?seed=vihaan&backgroundColor=b6e3f4,c0aede,d1d4f9" alt="Vihaan">
+                    <div class="avatar-gender">♂️</div>
+                    <div class="avatar-name">Vihaan</div>
+                    <div class="avatar-style">Adventurer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Female Section -->
+        <div class="gender-section">
+            <div class="gender-title female">♀️ Female Players - Lorelei Style</div>
+            <div class="avatars-grid">
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=ananya&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Ananya">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Ananya</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=diya&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Diya">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Diya</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=aarohi&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Aarohi">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Aarohi</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=pari&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Pari">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Pari</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=aanya&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Aanya">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Aanya</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+                <div class="avatar-item">
+                    <img class="avatar-img" src="https://api.dicebear.com/7.x/lorelei/svg?seed=sara&backgroundColor=ffd1dc,e6e6fa,ffe4e1" alt="Sara">
+                    <div class="avatar-gender">♀️</div>
+                    <div class="avatar-name">Sara</div>
+                    <div class="avatar-style">Lorelei</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-note">
+            <h3>🎯 Key Features</h3>
+            <ul>
+                <li><strong>Consistent Generation:</strong> Same name always produces the same avatar</li>
+                <li><strong>Gender-Appropriate:</strong> Visual style matches player gender automatically</li>
+                <li><strong>Indian Names:</strong> 30 male + 30 female authentic Indian names</li>
+                <li><strong>Color-Coded:</strong> Blue tones for males, pink tones for females</li>
+                <li><strong>Professional Quality:</strong> Using DiceBear's high-quality SVG avatars</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem;">
+            <a href="config.html" style="display: inline-block; background: linear-gradient(135deg, rgba(255, 23, 68, 0.8), rgba(213, 0, 249, 0.8)); padding: 1rem 3rem; border-radius: 15px; text-decoration: none; color: white; font-size: 1.3rem; font-weight: 600; box-shadow: 0 0 30px rgba(255, 23, 68, 0.4);">
+                🎮 START GAME
+            </a>
+        </div>
+    </div>
+</body>
+</html>

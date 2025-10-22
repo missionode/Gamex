@@ -55,36 +55,19 @@
         // Start button handler
         document.getElementById('startBtn').addEventListener('click', async () => {
             const btn = document.getElementById('startBtn');
-            const status = document.getElementById('bluetoothStatus');
 
             btn.disabled = true;
-            btn.innerHTML = '<span>CHECKING...</span>';
+            btn.innerHTML = '<span>LOADING...</span>';
 
-            // Check Bluetooth availability
-            if (!navigator.bluetooth) {
-                status.textContent = 'Bluetooth not supported on this browser. Please use Chrome, Edge, or Opera.';
-                status.classList.remove('hidden');
-                status.classList.add('error');
-                btn.disabled = false;
-                btn.innerHTML = '<span>START</span>';
-                return;
+            // Play sound and haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate([20, 50, 20]);
             }
 
-            // Request Bluetooth permission
-            try {
-                status.textContent = 'Requesting Bluetooth access...';
-                status.classList.remove('hidden', 'error');
-                status.classList.add('info');
-
-                // Store user as host and redirect to lobby
-                sessionStorage.setItem('isHost', 'true');
-                window.location.href = './lobby.html';
-            } catch (error) {
-                status.textContent = 'Bluetooth access denied. Please enable Bluetooth and try again.';
-                status.classList.add('error');
-                btn.disabled = false;
-                btn.innerHTML = '<span>START</span>';
-            }
+            // Redirect to config screen
+            setTimeout(() => {
+                window.location.href = './config.html';
+            }, 300);
         });
 
         // Haptic feedback for button

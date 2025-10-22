@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A0A0A">
+    <title>Playing - Gamex</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/main.css">
+    <style>
+        /* Enhanced text readability */
+        .game-header {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .round-counter {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .current-player {
+            font-size: 1.2rem;
+            color: #FFD740;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .current-player.watching {
+            color: #FF1744;
+            font-size: 1.4rem;
+        }
+
+        .emotion-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            min-height: 400px;
+        }
+
+        .player-spotlight {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .player-spotlight.watching-player {
+            border-color: var(--accent-love);
+            box-shadow: 0 0 40px rgba(255, 23, 68, 0.5);
+        }
+
+        .player-avatar-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+        }
+
+        .player-spotlight.watching-player .player-avatar-large {
+            border-color: var(--accent-love);
+            box-shadow: 0 0 40px rgba(255, 23, 68, 0.8);
+        }
+
+        .player-name-large {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            margin-bottom: 0.5rem;
+        }
+
+        .choice-made {
+            font-size: 6rem;
+            animation: choicePop 0.5s ease;
+        }
+
+        @keyframes choicePop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .choice-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            color: #FFFFFF;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            margin-top: 1rem;
+        }
+
+        .game-stats {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-friendship);
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-container {
+            width: 150px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-love), var(--accent-friendship));
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-screen">
+        <canvas id="auraCanvas"></canvas>
+
+        <div class="content">
+            <div class="game-header">
+                <div class="round-counter">
+                    Round <span id="currentRound">1</span> / <span id="minRounds">8</span>+
+                </div>
+                <div class="current-player" id="currentPlayerText">
+                    Starting game...
+                </div>
+            </div>
+
+            <div class="emotion-display">
+                <div class="player-spotlight" id="playerSpotlight">
+                    <img src="" alt="Player" class="player-avatar-large" id="playerAvatar" />
+                    <div class="player-name-large" id="playerName">Player 1</div>
+                    <div class="choice-made" id="choiceEmoji"></div>
+                    <div class="choice-label" id="choiceLabel"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-label">Total Turns</div>
+                <div class="stat-value" id="totalTurns">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">❤️ Love</div>
+                <div class="stat-value" id="loveCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">💛 Friend</div>
+                <div class="stat-value" id="friendCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">💜 Sex</div>
+                <div class="stat-value" id="sexCount">0</div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-text">Playing until BINGO...</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/audio.js"></script>
+    <script src="./js/animations.js"></script>
+    <script src="./js/game-logic.js"></script>
+    <script>
+        const audio = new GameAudio();
+        const canvas = document.getElementById('auraCanvas');
+        const animations = new AuraAnimations(canvas);
+        const gameLogic = new GameLogic();
+
+        // Load game config
+        let gameConfig = JSON.parse(sessionStorage.getItem('gameConfig'));
+        if (!gameConfig) {
+            window.location.href = './config.html';
+        }
+
+        // Emotion choices
+        const emotions = ['love', 'friendship', 'sex'];
+        const emotionEmojis = {
+            'love': '❤️',
+            'friendship': '💛',
+            'sex': '💜'
+        };
+        const emotionLabels = {
+            'love': 'Love',
+            'friendship': 'Friendship',
+            'sex': 'Sex'
+        };
+
+        // Game state
+        let gameState = {
+            players: gameConfig.players,
+            minRounds: gameConfig.minRounds,
+            totalRounds: gameConfig.minRounds, // Add totalRounds for checkBingo function
+            watchingPlayer: gameConfig.watchingPlayer,
+            watchingPlayerId: gameConfig.watchingPlayerId,
+            currentPlayerIndex: 0,
+            choices: [],
+            averages: {
+                global: { love: 0, friendship: 0, sex: 0 },
+                individual: {}
+            },
+            emotionCounts: { love: 0, friendship: 0, sex: 0 }
+        };
+
+        // Initialize individual averages
+        gameState.players.forEach(p => {
+            gameState.averages.individual[p.id] = { love: 0, friendship: 0, sex: 0 };
+        });
+
+        // Update UI
+        document.getElementById('minRounds').textContent = gameState.minRounds;
+
+        // Random delay generator (2s - 5s for realistic, thoughtful gameplay)
+        function getRandomDelay() {
+            return 2000 + Math.random() * 3000;
+        }
+
+        // Thinking delay before showing choice (1s - 2.5s)
+        function getThinkingDelay() {
+            return 1000 + Math.random() * 1500;
+        }
+
+        // Play one turn
+        function playTurn() {
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            const isWatchingPlayer = currentPlayer.id === gameState.watchingPlayerId;
+
+            // Update UI
+            updatePlayerDisplay(currentPlayer, isWatchingPlayer);
+
+            // Random emotion choice
+            const emotion = emotions[Math.floor(Math.random() * emotions.length)];
+
+            // Show choice after realistic thinking delay
+            setTimeout(() => {
+                makeChoice(currentPlayer, emotion, isWatchingPlayer);
+            }, getThinkingDelay());
+        }
+
+        // Update player display
+        function updatePlayerDisplay(player, isWatching) {
+            const currentRound = Math.floor(gameState.choices.length / gameState.players.length) + 1;
+            document.getElementById('currentRound').textContent = currentRound;
+
+            const playerText = document.getElementById('currentPlayerText');
+            const playerName = player.name || `Player ${player.number}`;
+            playerText.textContent = `${playerName}'s Turn`;
+            playerText.className = 'current-player' + (isWatching ? ' watching' : '');
+
+            const spotlight = document.getElementById('playerSpotlight');
+            spotlight.className = 'player-spotlight' + (isWatching ? ' watching-player' : '');
+
+            // Set avatar with fallback
+            const avatarElement = document.getElementById('playerAvatar');
+            const playerGender = player.gender || 'male';
+            const avatarStyle = playerGender === 'male' ? 'adventurer' : 'lorelei';
+            const avatarUrl = player.avatar || `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${playerName}`;
+            avatarElement.src = avatarUrl;
+            avatarElement.onerror = function() {
+                console.error('Failed to load avatar:', this.src);
+                this.src = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${playerName}${Date.now()}`;
+            };
+
+            document.getElementById('playerName').textContent = playerName;
+            document.getElementById('choiceEmoji').textContent = '';
+            document.getElementById('choiceLabel').textContent = 'Thinking...';
+
+            // Update aura
+            animations.setAuraType(isWatching ? 'love' : 'ambient');
+        }
+
+        // Make choice
+        function makeChoice(player, emotion, isWatching) {
+            // Record choice
+            const choice = {
+                playerId: player.id,
+                playerName: player.name,
+                emotion: emotion,
+                round: Math.floor(gameState.choices.length / gameState.players.length) + 1,
+                turn: gameState.choices.length + 1
+            };
+
+            gameState.choices.push(choice);
+            gameState.emotionCounts[emotion]++;
+
+            // Update averages
+            gameLogic.updateAverages(gameState);
+
+            // Show choice
+            document.getElementById('choiceEmoji').textContent = emotionEmojis[emotion];
+            document.getElementById('choiceLabel').textContent = emotionLabels[emotion];
+
+            // Play effects
+            audio.playSound(emotion);
+            animations.playEmotionAnimation(emotion);
+            if (navigator.vibrate) {
+                navigator.vibrate(emotion === 'love' ? 20 : emotion === 'friendship' ? [10, 10, 10] : 30);
+            }
+
+            // Update stats
+            updateStats();
+
+            // Check for BINGO
+            const currentRound = Math.floor(gameState.choices.length / gameState.players.length);
+
+            if (currentRound >= gameState.minRounds) {
+                const result = gameLogic.checkBingo(gameState);
+
+                // Debug logging
+                const watchingStats = gameState.averages.individual[gameState.watchingPlayerId];
+                console.log(`Round ${currentRound} - Watching Player Stats:`, watchingStats);
+                console.log('BINGO Check:', result);
+
+                if (result.isBingo) {
+                    // BINGO achieved!
+                    console.log('🎉 BINGO! Game won!');
+                    setTimeout(() => {
+                        gameWon();
+                    }, 1500);
+                    return;
+                } else {
+                    console.log('Not yet... ' + result.reason);
+                }
+            }
+
+            // Continue to next turn with realistic delay
+            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+
+            setTimeout(() => {
+                playTurn();
+            }, getRandomDelay());
+        }
+
+        // Update stats display
+        function updateStats() {
+            document.getElementById('totalTurns').textContent = gameState.choices.length;
+            document.getElementById('loveCount').textContent = gameState.emotionCounts.love;
+            document.getElementById('friendCount').textContent = gameState.emotionCounts.friendship;
+            document.getElementById('sexCount').textContent = gameState.emotionCounts.sex;
+
+            // Update progress bar (based on minimum rounds completion)
+            const currentRound = Math.floor(gameState.choices.length / gameState.players.length);
+            const progress = Math.min((currentRound / gameState.minRounds) * 100, 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Game won - transition to winning page
+        function gameWon() {
+            animations.playBingoAnimation();
+            audio.playSound('bingo');
+            if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+
+            // Save final game state
+            sessionStorage.setItem('finalGameState', JSON.stringify(gameState));
+
+            setTimeout(() => {
+                window.location.href = './winner.html';
+            }, 2000);
+        }
+
+        // Initialize and start
+        animations.startAmbientAura();
+        setTimeout(() => {
+            playTurn();
+        }, 1000);
+    </script>
+</body>
+</html>
