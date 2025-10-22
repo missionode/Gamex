@@ -75,15 +75,6 @@
             box-shadow: 0 0 50px rgba(255, 23, 68, 0.4);
         }
 
-        .player-avatar-winner {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            object-fit: cover;
-            border: 5px solid var(--accent-love);
-            box-shadow: 0 0 50px rgba(255, 23, 68, 0.8);
-        }
 
         .player-name-winner {
             font-family: 'Montserrat', sans-serif;
@@ -219,7 +210,6 @@
 
             <!-- Watching Player Highlight -->
             <div class="watching-player-card">
-                <img src="" alt="Winner" class="player-avatar-winner" id="watchingAvatar" />
                 <div class="player-name-winner" id="watchingName">Player 1</div>
                 <div class="player-badge">YOUR PERSPECTIVE</div>
             </div>
@@ -331,19 +321,7 @@
         const watchingPlayer = gameState.watchingPlayer;
         const watchingStats = gameState.averages.individual[watchingPlayer.id];
 
-        // Set avatar with fallback
-        const avatarElement = document.getElementById('watchingAvatar');
         const playerName = watchingPlayer.name || `Player ${watchingPlayer.number}`;
-        const playerGender = watchingPlayer.gender || 'male';
-        const avatarStyle = playerGender === 'male' ? 'adventurer' : 'lorelei';
-        const avatarUrl = watchingPlayer.avatar || `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${playerName}`;
-
-        avatarElement.src = avatarUrl;
-        avatarElement.onerror = function() {
-            console.error('Failed to load avatar:', this.src);
-            this.src = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${playerName}${Date.now()}`;
-        };
-
         document.getElementById('watchingName').textContent = playerName;
 
         // Watching player stats
